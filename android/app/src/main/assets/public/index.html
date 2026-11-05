@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AquaPace Pro - 200m, 400m, 800m & 1500m Freestyle Pace App</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AquaPace">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49',
+              950: '#041c2c',
+            },
+            cyanAccent: '#06b6d4',
+          },
+          padding: {
+            'safe-top': 'env(safe-area-inset-top)',
+            'safe-bottom': 'env(safe-area-inset-bottom)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      padding-top: max(0px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      user-select: none;
+    }
+    input, select, textarea {
+      user-select: text;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Touch optimizations */
+    button, input, select {
+      touch-action: manipulation;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    /* Print Styles for poolside clipboard */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-card {
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      table {
+        font-size: 11px !important;
+      }
+      th, td {
+        border-color: #cbd5e1 !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white pb-10">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2 bg-sky-500 text-white px-4 py-2.5 rounded-full shadow-2xl shadow-sky-950/80 font-medium text-xs sm:text-sm">
+    <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+    <span id="toast-msg">Copied to clipboard</span>
+  </div>
+
+  <!-- PWA Install Banner (Shown only when not installed) -->
+  <div id="pwa-install-banner" class="bg-gradient-to-r from-sky-600 to-cyan-600 text-white px-4 py-2 text-xs flex items-center justify-between shadow-lg no-print">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      </div>
+      <div>
+        <span class="font-bold">Install AquaPace</span>
+        <span class="opacity-90 hidden sm:inline">&bull; Download to your phone for 100% offline poolside use</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="handleInstallClick()" class="px-3 py-1 bg-white text-sky-700 font-bold rounded-lg shadow-sm hover:bg-sky-50 active:scale-95 transition text-xs">
+        Install App
+      </button>
+      <button onclick="dismissInstallBanner()" class="p-1 text-white/80 hover:text-white" title="Dismiss">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- iOS Install Instructions Modal -->
+  <div id="ios-install-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <h3 class="text-base font-bold text-white">Install AquaPace on iPhone</h3>
+      <p class="text-xs text-slate-300 leading-relaxed text-left bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="block">1. Tap the <strong class="text-sky-400">Share button</strong> (square with arrow up <svg class="w-3.5 h-3.5 inline text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>) at the bottom of Safari.</span>
+        <span class="block">2. Scroll down and tap <strong class="text-sky-400">"Add to Home Screen"</strong> (➕).</span>
+        <span class="block">3. Tap <strong class="text-sky-400">Add</strong> at top right. AquaPace is now on your home screen!</span>
+      </p>
+      <button onclick="closeIosModal()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs">
+        Got It
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-sky-400 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">AquaPace <span class="text-sky-400">Pro</span></h1>
+            <span class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800/60 hidden sm:inline">Race Pacer</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-none">200m, 400m, 800m & 1500m Freestyle</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Utilities (Optimized for Mobile Poolside) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 no-print">
+        
+        <!-- Screen Wake Lock Toggle (Poolside Screen Saver Prevention) -->
+        <button id="btn-wakelock" onclick="toggleWakeLock()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition" title="Keep screen awake poolside">
+          <svg id="icon-wakelock" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span class="hidden sm:inline" id="txt-wakelock">Screen Lock</span>
+        </button>
+
+        <!-- Share Sheet / Copy -->
+        <button onclick="shareOrCopyPacing()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center gap-1.5 transition shadow-sm shadow-sky-600/30">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span>Share</span>
+        </button>
+
+        <!-- Poolside Print -->
+        <button onclick="window.print()" class="hidden md:flex px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold items-center gap-1 transition">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Print
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 space-y-4">
+    
+    <!-- Top Global Toggles: Distance, Course & Tactical Strategy -->
+    <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-5 backdrop-blur shadow-xl shadow-black/40">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+        
+        <!-- Distance Select -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Race Distance
+          </label>
+          <div class="grid grid-cols-4 p-1 bg-slate-950 rounded-xl border border-slate-800 gap-1">
+            <button type="button" onclick="setDistance(200)" id="btn-dist-200" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">200m</button>
+            <button type="button" onclick="setDistance(400)" id="btn-dist-400" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">400m</button>
+            <button type="button" onclick="setDistance(800)" id="btn-dist-800" class="py-2 text-xs font-bold rounded-lg bg-sky-600 text-white shadow-sm transition">800m</button>
+            <button type="button" onclick="setDistance(1500)" id="btn-dist-1500" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">1500m</button>
+          </div>
+        </div>
+
+        <!-- Course Select -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            Course Pool Length
+          </label>
+          <div class="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 gap-1">
+            <button type="button" onclick="setCourse('SC')" id="btn-course-sc" class="py-2 text-xs sm:text-sm font-bold rounded-lg bg-sky-600 text-white shadow-sm transition">25m Short Course</button>
+            <button type="button" onclick="setCourse('LC')" id="btn-course-lc" class="py-2 text-xs sm:text-sm font-bold rounded-lg text-slate-400 hover:text-white transition">50m Long Course</button>
+          </div>
+        </div>
+
+        <!-- Tactical Strategy Model -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Pacing Strategy
+          </label>
+          <select id="select-strategy" onchange="onStrategyChange(this.value)" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <option value="tactical">Even / Tactical Cruise (Dive boost + Finish surge)</option>
+            <option value="negative">Negative Split (Controlled 1st half, Fast 2nd half)</option>
+            <option value="flat">Flat Average (Uniform mechanical pace)</option>
+          </select>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2-Column Section: Input (PB or County Standard) vs Real-Time Summary & Metrics -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      
+      <!-- Left Column: Input Modes (Tabs for PB vs County Times) -->
+      <div class="lg:col-span-5 space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg shadow-black/40">
+          
+          <!-- Tab Navigation -->
+          <div class="flex border-b border-slate-800 bg-slate-950/60">
+            <button id="tab-btn-manual" onclick="switchInputTab('manual')" class="flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-sky-500 text-sky-400 bg-slate-900/80 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Swimmer PB / Target
+            </button>
+            <button id="tab-btn-county" onclick="switchInputTab('county')" class="flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+              County Standards
+            </button>
+          </div>
+
+          <div class="p-4 sm:p-5 space-y-4">
+            
+            <!-- TAB 1: Manual PB / Target Input -->
+            <div id="tab-content-manual" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Target Race Time (or Current PB)
+                </label>
+                <div class="grid grid-cols-3 gap-2">
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-medium">Minutes</span>
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="in-min" min="0" max="59" value="9" oninput="calculateFromManualInputs()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-center text-lg font-bold font-mono-num text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-medium">Seconds</span>
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="in-sec" min="0" max="59" value="45" oninput="calculateFromManualInputs()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-center text-lg font-bold font-mono-num text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-medium">Hundredths (.00)</span>
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="in-hundredths" min="0" max="99" value="00" oninput="calculateFromManualInputs()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-center text-lg font-bold font-mono-num text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-800/80">
+                <label class="block text-xs font-semibold text-slate-400 mb-1">
+                  Or Quick Calculate by 100m Base Pace (CSS / Cruise)
+                </label>
+                <div class="flex items-center gap-2">
+                  <input type="text" id="in-pace-100" placeholder="e.g. 1:13.00" onchange="calculateFromPaceInput(this.value)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 font-mono-num text-sm text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                  <button type="button" onclick="calculateFromPaceInput(document.getElementById('in-pace-100').value)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold rounded-xl border border-slate-700">Apply</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: 2026 County Standards Reference -->
+            <div id="tab-content-county" class="hidden space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Gender</label>
+                  <select id="county-gender" onchange="loadCountyCutToInputs()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    <option value="male" selected>Open / Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Age Band (2026)</label>
+                  <select id="county-age" onchange="loadCountyCutToInputs()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    <option value="10">10 Yrs</option>
+                    <option value="11">11 Yrs</option>
+                    <option value="12">12 Yrs</option>
+                    <option value="13">13 Yrs</option>
+                    <option value="14" selected>14 Yrs</option>
+                    <option value="15">15 Yrs</option>
+                    <option value="16">16 Yrs</option>
+                    <option value="17">17 Yrs</option>
+                    <option value="18_plus">18+ Yrs (Senior)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="p-3.5 bg-slate-950 rounded-xl border border-sky-950/80 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    <span class="text-[11px] font-bold uppercase text-sky-400 tracking-wider">2026 County Benchmark Standard</span>
+                  </div>
+                  <div id="county-benchmark-display" class="text-xl sm:text-2xl font-black font-mono-num text-white mt-0.5">12:04.00</div>
+                  <div class="text-[11px] text-slate-400" id="county-desc-display">Open/Male 14 Yrs &bull; 800m (SC 25m)</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="loadCountyCutToInputs()" class="px-3 py-1.5 rounded-lg bg-sky-600 text-white font-bold text-xs hover:bg-sky-500 transition active:scale-95 shadow-sm shadow-sky-600/30">
+                    Apply Cut
+                  </button>
+                  <button type="button" onclick="openCountyModal()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-sky-300 border border-slate-700 text-xs font-semibold hover:bg-slate-700 transition">
+                    📋 All 2026 Times
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Adjustment Offset Slider -->
+            <div class="pt-3 border-t border-slate-800">
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-semibold text-slate-300">Target Pace Offset (Improvement buffer)</span>
+                <span id="offset-label" class="font-mono-num font-bold text-sky-400">0.0% (Exact)</span>
+              </div>
+              <input type="range" id="offset-slider" min="-6" max="3" step="0.5" value="0" oninput="onOffsetChange(this.value)" class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-sky-500">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono-num">
+                <span>-6% (Aggressive Beat)</span>
+                <span>-2% (Safe Buffer)</span>
+                <span>0% (Exact)</span>
+                <span>+3% (Base Entry)</span>
+              </div>
+            </div>
+
+            <!-- Swimmer Saved Plans (Local Storage) -->
+            <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+              <button onclick="promptSavePlan()" class="text-xs text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                Save Swimmer Plan
+              </button>
+              <select id="saved-plans-select" onchange="loadSavedPlan(this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-sky-500">
+                <option value="">Load Saved Plan...</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Strategy Description Card -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5 text-xs text-slate-400 space-y-1.5">
+          <div class="flex items-center gap-2 text-slate-200 font-semibold">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Tactical Pacing Dynamics
+          </div>
+          <p id="strategy-explanation" class="leading-relaxed">
+            <strong>Even / Tactical Cruise:</strong> Incorporates a +1.7s block start dive speed advantage on the 1st 100m, locked-in aerobic cruise splits with sub-second consistency across the middle distance, and a +1.2s kick surge into the wall on the final lap.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Real-Time Metrics & Visual Progression -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <!-- Summary Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+          
+          <div class="bg-gradient-to-br from-slate-900 to-sky-950/40 border border-sky-800/50 rounded-2xl p-3 shadow-md">
+            <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Target Time</div>
+            <div id="stat-total-time" class="text-lg sm:text-2xl font-black font-mono-num text-white mt-0.5">09:45.00</div>
+            <div id="stat-status-badge" class="text-[9px] text-sky-400 font-medium truncate mt-0.5">Custom Target</div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-md">
+            <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Avg 100m Pace</div>
+            <div id="stat-avg-100" class="text-lg sm:text-2xl font-black font-mono-num text-sky-400 mt-0.5">1:13.12</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">Base cruise tempo</div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-md">
+            <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Avg 50m Split</div>
+            <div id="stat-avg-50" class="text-lg sm:text-2xl font-black font-mono-num text-slate-200 mt-0.5">36.56</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">Pool turn cadence</div>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-md">
+            <div class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider" id="stat-halfway-label">400m Checkpoint</div>
+            <div id="stat-halfway-time" class="text-lg sm:text-2xl font-black font-mono-num text-emerald-400 mt-0.5">04:52.20</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">Halfway target split</div>
+          </div>
+
+        </div>
+
+        <!-- Visual Lap Pace Curve (Mini Bar Graph) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Pace Profile (Secs per 100m)</h3>
+            </div>
+            <span class="text-[10px] text-slate-400">Consistency curve</span>
+          </div>
+
+          <!-- Pace Curve Visualizer -->
+          <div id="pace-bars-container" class="h-24 sm:h-28 flex items-end gap-1 px-1 pt-3 pb-1 border-b border-slate-800/80">
+            <!-- Dynamically generated bars -->
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono-num pt-1">
+            <span>0m (Dive)</span>
+            <span>Middle Aerobic Cruise</span>
+            <span id="graph-dist-end">800m (Touch)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Pacing Table & Export Tools Section -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl print-card">
+      
+      <!-- Table Header & Controls -->
+      <div class="p-3.5 sm:p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-950/40">
+        <div>
+          <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            Target Race Pacing Card
+            <span id="table-summary-tag" class="text-[11px] font-mono-num font-semibold text-sky-400 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-800/50">800m Short Course</span>
+          </h2>
+          <p class="text-[11px] text-slate-400">Stopwatch targets & tactical poolside execution notes</p>
+        </div>
+
+        <!-- Table View Options -->
+        <div class="flex items-center gap-2 no-print">
+          <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button id="btn-split-100" onclick="setSplitInterval(100)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition">100m</button>
+            <button id="btn-split-50" onclick="setSplitInterval(50)" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">50m</button>
+          </div>
+          <button onclick="downloadCSV()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 flex items-center gap-1 transition">
+            CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Responsive Table Container -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-950/80 text-slate-400 text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold border-b border-slate-800">
+              <th class="py-2.5 px-3 sm:px-5">Dist</th>
+              <th class="py-2.5 px-3 sm:px-5">Split</th>
+              <th class="py-2.5 px-3 sm:px-5">Clock</th>
+              <th class="py-2.5 px-3 sm:px-5">Diff</th>
+              <th class="py-2.5 px-3 sm:px-5">Tactical Directives</th>
+            </tr>
+          </thead>
+          <tbody id="pacing-table-body" class="divide-y divide-slate-800/60 font-mono-num text-xs sm:text-sm">
+            <!-- Injected by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Coaching Footer Tip -->
+      <div class="p-3 bg-slate-950/60 border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <span><strong>Coach Cue:</strong> Cumulative Clock indicates exact stopwatch time when swimmer hits the wall.</span>
+        </div>
+        <div class="text-slate-500 font-mono-num text-[10px]">
+          Short Course turns yield ~0.8s-1.2s per 100m vs 50m Long Course.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Poolside Ready Print Signature -->
+  <footer class="py-4 border-t border-slate-800/80 text-center text-[11px] text-slate-500 no-print">
+    AquaPace Pro &bull; Offline PWA for Swimmers & Coaches
+  </footer>
+
+  <!-- Application Logic & Pacing Database -->
+  <script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('AquaPace Service Worker registered:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+
+    // PWA Install Prompt Logic
+    let deferredPrompt = null;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!isStandalone) {
+        document.getElementById('pwa-install-banner').classList.remove('hidden');
+      }
+    });
+
+    if (isStandalone) {
+      document.getElementById('pwa-install-banner').classList.add('hidden');
+    }
+
+    function handleInstallClick() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        document.getElementById('ios-install-modal').classList.remove('hidden');
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            document.getElementById('pwa-install-banner').classList.add('hidden');
+            showToast("AquaPace installed successfully!");
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert("To install on Android: Tap Chrome's menu (three dots) -> 'Install app' or 'Add to Home screen'.");
+      }
+    }
+
+    function closeIosModal() {
+      document.getElementById('ios-install-modal').classList.add('hidden');
+    }
+
+    function dismissInstallBanner() {
+      document.getElementById('pwa-install-banner').classList.add('hidden');
+    }
+
+    // Screen Wake Lock API (Keep Screen On Poolside)
+    let wakeLockSentinel = null;
+    async function toggleWakeLock() {
+      if (!('wakeLock' in navigator)) {
+        showToast("Screen Wake Lock not supported on this browser.");
+        return;
+      }
+      try {
+        if (wakeLockSentinel === null) {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+          wakeLockSentinel.addEventListener('release', () => {
+            wakeLockSentinel = null;
+            updateWakeLockUI(false);
+          });
+          updateWakeLockUI(true);
+          showToast("Poolside Screen Lock: ON (Screen won't turn off)");
+        } else {
+          await wakeLockSentinel.release();
+          wakeLockSentinel = null;
+          updateWakeLockUI(false);
+          showToast("Poolside Screen Lock: OFF");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Could not activate Screen Lock: " + err.message);
+      }
+    }
+
+    function updateWakeLockUI(active) {
+      const btn = document.getElementById('btn-wakelock');
+      const icon = document.getElementById('icon-wakelock');
+      const txt = document.getElementById('txt-wakelock');
+      if (active) {
+        btn.classList.add('bg-sky-500/20', 'border-sky-500', 'text-sky-300');
+        icon.classList.remove('text-slate-400');
+        icon.classList.add('text-sky-400');
+        txt.innerText = "Screen Awake";
+      } else {
+        btn.classList.remove('bg-sky-500/20', 'border-sky-500', 'text-sky-300');
+        icon.classList.remove('text-sky-400');
+        icon.classList.add('text-slate-400');
+        txt.innerText = "Screen Lock";
+      }
+    }
+
+    // Re-request wake lock if tab is focused back
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLockSentinel !== null && document.visibilityState === 'visible') {
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+        } catch (e) {}
+      }
+    });
+
+    
+    // ==========================================
+    // OFFICIAL 2026 COUNTY CHAMPIONSHIP STANDARDS
+    // ==========================================
+    const COUNTY_MATRIX_2026 = {"female": {"50 Freestyle": {"10": 38.0, "11": 38.0, "12": 35.0, "13": 33.0, "14": 32.0, "15": 31.5, "16": 31.0, "17": 30.5, "18+": 30.0}, "100 Freestyle": {"10": 88.0, "11": 88.0, "12": 80.0, "13": 73.0, "14": 69.5, "15": 68.0, "16": 68.0, "17": 68.0, "18+": 65.0}, "200 Freestyle": {"10": 195.0, "11": 195.0, "12": 170.0, "13": 155.0, "14": 150.0, "15": 147.0, "16": 146.0, "17": 145.0, "18+": 144.0}, "400 Freestyle": {"10": 403.0, "11": 403.0, "12": 370.0, "13": 330.0, "14": 320.0, "15": 318.0, "16": 310.0, "17": 309.0, "18+": 302.0}, "800 Freestyle": {"10": null, "11": null, "12": 735.0, "13": 690.0, "14": 680.0, "15": 665.0, "16": 660.0, "17": 650.0, "18+": 650.0}, "1500 Freestyle": {"10": null, "11": null, "12": 1800.0, "13": 1440.0, "14": 1380.0, "15": 1320.0, "16": 1260.0, "17": 1260.0, "18+": 1260.0}, "50 Backstroke": {"10": 48.0, "11": 48.0, "12": 43.0, "13": 40.5, "14": 39.7, "15": 37.6, "16": 37.6, "17": 37.2, "18+": 37.2}, "100 Backstroke": {"10": 105.0, "11": 105.0, "12": 93.0, "13": 84.0, "14": 82.0, "15": 80.0, "16": 80.0, "17": 79.5, "18+": 78.0}, "200 Backstroke": {"10": 238.0, "11": 238.0, "12": 200.0, "13": 190.0, "14": 178.0, "15": 174.0, "16": 172.0, "17": 172.0, "18+": 165.0}, "50 Breaststroke": {"10": 56.0, "11": 56.0, "12": 49.0, "13": 46.0, "14": 44.0, "15": 43.0, "16": 42.0, "17": 42.0, "18+": 41.5}, "100 Breaststroke": {"10": 120.0, "11": 120.0, "12": 105.0, "13": 98.0, "14": 94.0, "15": 90.0, "16": 90.0, "17": 89.0, "18+": 90.0}, "200 Breaststroke": {"10": 250.0, "11": 250.0, "12": 225.0, "13": 210.0, "14": 198.0, "15": 197.0, "16": 196.0, "17": 195.0, "18+": 192.0}, "50 Butterfly": {"10": 50.0, "11": 50.0, "12": 44.0, "13": 39.0, "14": 36.5, "15": 36.0, "16": 35.5, "17": 35.0, "18+": 34.5}, "100 Butterfly": {"10": 120.0, "11": 120.0, "12": 110.0, "13": 89.0, "14": 82.0, "15": 81.0, "16": 81.0, "17": 80.0, "18+": 79.0}, "200 Butterfly": {"10": 252.0, "11": 252.0, "12": 248.0, "13": 245.0, "14": 211.0, "15": 207.0, "16": 203.0, "17": 191.0, "18+": 180.0}, "200 Individual Medley": {"10": 211.0, "11": 211.0, "12": 200.0, "13": 180.0, "14": 178.0, "15": 175.0, "16": 174.0, "17": 170.0, "18+": 168.0}, "400 Individual Medley": {"10": null, "11": null, "12": 448.0, "13": 408.0, "14": 362.0, "15": 348.0, "16": 343.0, "17": 343.0, "18+": 343.0}}, "male": {"50 Freestyle": {"10": 44.0, "11": 44.0, "12": 37.0, "13": 35.0, "14": 32.0, "15": 30.0, "16": 29.5, "17": 29.1, "18+": 28.9}, "100 Freestyle": {"10": 93.0, "11": 93.0, "12": 80.0, "13": 75.0, "14": 70.0, "15": 65.0, "16": 64.0, "17": 64.0, "18+": 61.0}, "200 Freestyle": {"10": 186.0, "11": 186.0, "12": 170.0, "13": 165.0, "14": 145.0, "15": 140.0, "16": 136.0, "17": 135.0, "18+": 134.0}, "400 Freestyle": {"10": 390.0, "11": 390.0, "12": 385.0, "13": 348.0, "14": 316.0, "15": 300.0, "16": 298.0, "17": 297.0, "18+": 296.0}, "800 Freestyle": {"10": null, "11": null, "12": 735.0, "13": 730.0, "14": 724.0, "15": 675.0, "16": 675.0, "17": 665.0, "18+": 670.0}, "1500 Freestyle": {"10": null, "11": null, "12": 1500.0, "13": 1320.0, "14": 1290.0, "15": 1275.0, "16": 1270.0, "17": 1200.0, "18+": 1200.0}, "50 Backstroke": {"10": 54.0, "11": 54.0, "12": 44.0, "13": 41.0, "14": 39.0, "15": 38.5, "16": 36.0, "17": 36.0, "18+": 34.0}, "100 Backstroke": {"10": 110.0, "11": 110.0, "12": 94.5, "13": 85.5, "14": 81.0, "15": 76.0, "16": 74.5, "17": 73.5, "18+": 73.0}, "200 Backstroke": {"10": 217.0, "11": 217.0, "12": 205.0, "13": 185.0, "14": 178.0, "15": 165.0, "16": 159.0, "17": 157.0, "18+": 155.0}, "50 Breaststroke": {"10": 59.0, "11": 59.0, "12": 52.0, "13": 48.0, "14": 43.8, "15": 40.8, "16": 37.0, "17": 37.0, "18+": 36.0}, "100 Breaststroke": {"10": 125.0, "11": 125.0, "12": 115.0, "13": 102.0, "14": 97.0, "15": 89.0, "16": 87.0, "17": 84.0, "18+": 83.0}, "200 Breaststroke": {"10": 255.0, "11": 255.0, "12": 220.0, "13": 212.0, "14": 202.0, "15": 192.0, "16": 190.0, "17": 185.0, "18+": 180.0}, "50 Butterfly": {"10": 54.0, "11": 54.0, "12": 48.0, "13": 43.0, "14": 39.5, "15": 37.0, "16": 35.0, "17": 35.0, "18+": 34.0}, "100 Butterfly": {"10": 130.0, "11": 130.0, "12": 115.0, "13": 112.0, "14": 100.0, "15": 90.0, "16": 80.0, "17": 76.0, "18+": 70.0}, "200 Butterfly": {"10": 256.0, "11": 256.0, "12": 255.0, "13": 240.0, "14": 227.0, "15": 223.0, "16": 219.0, "17": 192.5, "18+": 165.5}, "200 Individual Medley": {"10": 220.0, "11": 220.0, "12": 205.0, "13": 195.0, "14": 170.0, "15": 165.0, "16": 158.0, "17": 157.0, "18+": 150.0}, "400 Individual Medley": {"10": null, "11": null, "12": 448.0, "13": 390.0, "14": 380.0, "15": 345.0, "16": 340.0, "17": 335.0, "18+": 330.0}}};
+
+        // Fast lookup for 200m, 400m, 800m and 1500m Freestyle 2026 standards
+    // Note: Long Course (50m) incorporates standard Swim England turn differential
+    const COUNTY_STANDARDS = {
+      male: {
+        '10': {
+          '200_SC': 186.0, '200_LC': 188.4,
+          '400_SC': 390.0, '400_LC': 394.8,
+          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1500.0, '1500_LC': 1518.0,
+          note: '800m/1500m start at age 12; showing age 12 cut'
+        },
+        '11': {
+          '200_SC': 186.0, '200_LC': 188.4,
+          '400_SC': 390.0, '400_LC': 394.8,
+          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1500.0, '1500_LC': 1518.0,
+          note: '800m/1500m start at age 12; showing age 12 cut'
+        },
+        '12': {
+          '200_SC': 170.0, '200_LC': 172.4,
+          '400_SC': 385.0, '400_LC': 389.8,
+          '800_SC': 735.0, '800_LC': 744.6,
+          '1500_SC': 1500.0, '1500_LC': 1518.0
+        },
+        '13': {
+          '200_SC': 165.0, '200_LC': 167.4,
+          '400_SC': 348.0, '400_LC': 352.8,
+          '800_SC': 730.0, '800_LC': 739.6,
+          '1500_SC': 1320.0, '1500_LC': 1338.0
+        },
+        '14': {
+          '200_SC': 145.0, '200_LC': 147.4,
+          '400_SC': 316.0, '400_LC': 320.8,
+          '800_SC': 724.0, '800_LC': 733.6,
+          '1500_SC': 1290.0, '1500_LC': 1308.0
+        },
+        '15': {
+          '200_SC': 140.0, '200_LC': 142.4,
+          '400_SC': 300.0, '400_LC': 304.8,
+          '800_SC': 675.0, '800_LC': 684.6,
+          '1500_SC': 1275.0, '1500_LC': 1293.0
+        },
+        '16': {
+          '200_SC': 136.0, '200_LC': 138.4,
+          '400_SC': 298.0, '400_LC': 302.8,
+          '800_SC': 675.0, '800_LC': 684.6,
+          '1500_SC': 1270.0, '1500_LC': 1288.0
+        },
+        '17': {
+          '200_SC': 135.0, '200_LC': 137.4,
+          '400_SC': 297.0, '400_LC': 301.8,
+          '800_SC': 665.0, '800_LC': 674.6,
+          '1500_SC': 1200.0, '1500_LC': 1218.0
+        },
+        '18_plus': {
+          '200_SC': 134.0, '200_LC': 136.4,
+          '400_SC': 296.0, '400_LC': 300.8,
+          '800_SC': 670.0, '800_LC': 679.6,
+          '1500_SC': 1200.0, '1500_LC': 1218.0
+        }
+      },
+      female: {
+        '10': {
+          '200_SC': 195.0, '200_LC': 197.4,
+          '400_SC': 403.0, '400_LC': 407.8,
+          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1800.0, '1500_LC': 1818.0,
+          note: '800m/1500m start at age 12; showing age 12 cut'
+        },
+        '11': {
+          '200_SC': 195.0, '200_LC': 197.4,
+          '400_SC': 403.0, '400_LC': 407.8,
+          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1800.0, '1500_LC': 1818.0,
+          note: '800m/1500m start at age 12; showing age 12 cut'
+        },
+        '12': {
+          '200_SC': 170.0, '200_LC': 172.4,
+          '400_SC': 370.0, '400_LC': 374.8,
+          '800_SC': 735.0, '800_LC': 744.6,
+          '1500_SC': 1800.0, '1500_LC': 1818.0
+        },
+        '13': {
+          '200_SC': 155.0, '200_LC': 157.4,
+          '400_SC': 330.0, '400_LC': 334.8,
+          '800_SC': 690.0, '800_LC': 699.6,
+          '1500_SC': 1440.0, '1500_LC': 1458.0
+        },
+        '14': {
+          '200_SC': 150.0, '200_LC': 152.4,
+          '400_SC': 320.0, '400_LC': 324.8,
+          '800_SC': 680.0, '800_LC': 689.6,
+          '1500_SC': 1380.0, '1500_LC': 1398.0
+        },
+        '15': {
+          '200_SC': 147.0, '200_LC': 149.4,
+          '400_SC': 318.0, '400_LC': 322.8,
+          '800_SC': 665.0, '800_LC': 674.6,
+          '1500_SC': 1320.0, '1500_LC': 1338.0
+        },
+        '16': {
+          '200_SC': 146.0, '200_LC': 148.4,
+          '400_SC': 310.0, '400_LC': 314.8,
+          '800_SC': 660.0, '800_LC': 669.6,
+          '1500_SC': 1260.0, '1500_LC': 1278.0
+        },
+        '17': {
+          '200_SC': 145.0, '200_LC': 147.4,
+          '400_SC': 309.0, '400_LC': 313.8,
+          '800_SC': 650.0, '800_LC': 659.6,
+          '1500_SC': 1260.0, '1500_LC': 1278.0
+        },
+        '18_plus': {
+          '200_SC': 144.0, '200_LC': 146.4,
+          '400_SC': 302.0, '400_LC': 306.8,
+          '800_SC': 650.0, '800_LC': 659.6,
+          '1500_SC': 1260.0, '1500_LC': 1278.0
+        }
+      }
+    };
+
+    // Global State
+    let currentDistance = 800; // 800 or 1500
+    let currentCourse = 'SC';   // 'SC' or 'LC'
+    let currentStrategy = 'tactical'; // 'tactical', 'negative', 'flat'
+    let splitInterval = 100;   // 100 or 50
+    let activeInputTab = 'county'; // default to county
+    let targetOffsetPct = 0.0; // percentage shift
+    let baseTargetSeconds = 724.0; // Default: 12:04.00 (2026 Male 14 800m SC cut)
+
+    let calculatedSplits100 = [];
+    let calculatedSplits50 = [];
+
+    // Initialize UI on load
+    window.addEventListener('DOMContentLoaded', () => {
+      syncManualInputsFromSeconds(baseTargetSeconds);
+      updateCountyDisplay();
+      refreshSavedPlansList();
+      recalculateAndRender();
+    });
+
+    // Formatters
+    function formatTime(totalSeconds) {
+      if (isNaN(totalSeconds) || totalSeconds < 0) return "00:00.00";
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.floor(totalSeconds % 60);
+      const hs = Math.round((totalSeconds - Math.floor(totalSeconds)) * 100);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(hs).padStart(2, '0')}`;
+    }
+
+    function formatSecondsOnly(sec) {
+      return sec.toFixed(2);
+    }
+
+    function parseTimeToSeconds(minStr, secStr, hsStr) {
+      const m = parseInt(minStr) || 0;
+      const s = parseInt(secStr) || 0;
+      const hs = parseInt(hsStr) || 0;
+      return (m * 60) + s + (hs / 100);
+    }
+
+    // Tab Switching
+    function switchInputTab(tab) {
+      activeInputTab = tab;
+      const btnManual = document.getElementById('tab-btn-manual');
+      const btnCounty = document.getElementById('tab-btn-county');
+      const panelManual = document.getElementById('tab-content-manual');
+      const panelCounty = document.getElementById('tab-content-county');
+
+      if (tab === 'manual') {
+        btnManual.className = "flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-sky-500 text-sky-400 bg-slate-900/80 transition flex items-center justify-center gap-1.5";
+        btnCounty.className = "flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5";
+        panelManual.classList.remove('hidden');
+        panelCounty.classList.add('hidden');
+        calculateFromManualInputs();
+      } else {
+        btnCounty.className = "flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-sky-500 text-sky-400 bg-slate-900/80 transition flex items-center justify-center gap-1.5";
+        btnManual.className = "flex-1 py-2.5 px-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5";
+        panelCounty.classList.remove('hidden');
+        panelManual.classList.add('hidden');
+        loadCountyCutToInputs();
+      }
+    }
+
+        // Distance Toggle (200m, 400m, 800m, 1500m)
+    function setDistance(dist) {
+      currentDistance = dist;
+      const distances = [200, 400, 800, 1500];
+      distances.forEach(d => {
+        const btn = document.getElementById(`btn-dist-${d}`);
+        if (btn) {
+          if (d === dist) {
+            btn.className = "py-2 text-xs font-bold rounded-lg bg-sky-600 text-white shadow-sm transition";
+          } else {
+            btn.className = "py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
+          }
+        }
+      });
+
+      const halfwayLabel = document.getElementById('stat-halfway-label');
+      const graphDistEnd = document.getElementById('graph-dist-end');
+
+      if (dist === 200) {
+        halfwayLabel.innerText = "100m Checkpoint";
+        graphDistEnd.innerText = "200m (Touch)";
+      } else if (dist === 400) {
+        halfwayLabel.innerText = "200m Checkpoint";
+        graphDistEnd.innerText = "400m (Touch)";
+      } else if (dist === 800) {
+        halfwayLabel.innerText = "400m Checkpoint";
+        graphDistEnd.innerText = "800m (Touch)";
+      } else {
+        halfwayLabel.innerText = "750m / 800m Checkpoint";
+        graphDistEnd.innerText = "1500m (Touch)";
+      }
+
+      if (activeInputTab === 'county') {
+        loadCountyCutToInputs();
+      } else {
+        // Adjust manual default if switching distance drastically
+        const pacePer100 = baseTargetSeconds / (dist === 200 ? 4 : (dist === 400 ? 8 : (dist === 800 ? 8 : 15)));
+        baseTargetSeconds = Math.round(pacePer100 * (dist / 100));
+        syncManualInputsFromSeconds(baseTargetSeconds);
+      }
+      updateCountyDisplay();
+      recalculateAndRender();
+    }
+
+    // Course Toggle
+    function setCourse(course) {
+      const prevCourse = currentCourse;
+      currentCourse = course;
+      const bSC = document.getElementById('btn-course-sc');
+      const bLC = document.getElementById('btn-course-lc');
+
+      if (course === 'SC') {
+        bSC.className = "py-2 text-xs sm:text-sm font-bold rounded-lg bg-sky-600 text-white shadow-sm transition";
+        bLC.className = "py-2 text-xs sm:text-sm font-bold rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        bLC.className = "py-2 text-xs sm:text-sm font-bold rounded-lg bg-sky-600 text-white shadow-sm transition";
+        bSC.className = "py-2 text-xs sm:text-sm font-bold rounded-lg text-slate-400 hover:text-white transition";
+      }
+
+      if (activeInputTab === 'manual') {
+        const factor = (currentDistance / 100) * 1.1;
+        if (prevCourse === 'SC' && course === 'LC') {
+          baseTargetSeconds += factor;
+        } else if (prevCourse === 'LC' && course === 'SC') {
+          baseTargetSeconds = Math.max(300, baseTargetSeconds - factor);
+        }
+        syncManualInputsFromSeconds(baseTargetSeconds);
+      } else {
+        loadCountyCutToInputs();
+      }
+
+      updateCountyDisplay();
+      recalculateAndRender();
+    }
+
+    // Strategy Selection
+    function onStrategyChange(strat) {
+      currentStrategy = strat;
+      const explanation = document.getElementById('strategy-explanation');
+      if (strat === 'tactical') {
+        explanation.innerHTML = "<strong>Even / Tactical Cruise:</strong> Incorporates a +1.7s dive speed advantage on the 1st 100m, locked-in aerobic cruise splits with sub-second consistency across the middle distance, and a +1.2s kick surge into the wall on the final lap.";
+      } else if (strat === 'negative') {
+        explanation.innerHTML = "<strong>Negative Split:</strong> Highly disciplined race plan. Swimmer controls excitement on the first 50% with clean long stroke length (+0.8s offset), before building cadence and attacking the second 50% at 100% threshold.";
+      } else {
+        explanation.innerHTML = "<strong>Flat Average:</strong> Strict uniform division of total race time divided evenly across all 100m blocks. Ideal for baseline benchmark tests, pace clock memorization, and CSS testing.";
+      }
+      recalculateAndRender();
+    }
+
+    // Split Interval Toggle (100m vs 50m)
+    function setSplitInterval(interval) {
+      splitInterval = interval;
+      const b100 = document.getElementById('btn-split-100');
+      const b50 = document.getElementById('btn-split-50');
+      if (interval === 100) {
+        b100.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition";
+        b50.className = "px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+      } else {
+        b50.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-600 text-white transition";
+        b100.className = "px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+      }
+      renderPacingTable();
+    }
+
+    // Target Offset Slider
+    function onOffsetChange(val) {
+      targetOffsetPct = parseFloat(val);
+      const label = document.getElementById('offset-label');
+      if (targetOffsetPct === 0) {
+        label.innerText = `0.0% (Exact)`;
+        label.className = "font-mono-num font-bold text-sky-400";
+      } else if (targetOffsetPct < 0) {
+        label.innerText = `${targetOffsetPct.toFixed(1)}% (Faster by ${(Math.abs(baseTargetSeconds * targetOffsetPct / 100)).toFixed(1)}s)`;
+        label.className = "font-mono-num font-bold text-emerald-400";
+      } else {
+        label.innerText = `+${targetOffsetPct.toFixed(1)}% (Slower by +${(baseTargetSeconds * targetOffsetPct / 100).toFixed(1)}s)`;
+        label.className = "font-mono-num font-bold text-amber-400";
+      }
+      recalculateAndRender();
+    }
+
+    // Manual Input Handlers
+    function calculateFromManualInputs() {
+      const min = document.getElementById('in-min').value;
+      const sec = document.getElementById('in-sec').value;
+      const hundredths = document.getElementById('in-hundredths').value;
+      const parsed = parseTimeToSeconds(min, sec, hundredths);
+      if (parsed > 0) {
+        baseTargetSeconds = parsed;
+        recalculateAndRender();
+      }
+    }
+
+    function calculateFromPaceInput(paceStr) {
+      if (!paceStr) return;
+      const parts = paceStr.trim().split(':');
+      let paceSec = 0;
+      if (parts.length === 2) {
+        paceSec = (parseFloat(parts[0]) * 60) + parseFloat(parts[1]);
+      } else if (parts.length === 1) {
+        paceSec = parseFloat(parts[0]);
+      }
+      if (paceSec > 0) {
+        baseTargetSeconds = paceSec * (currentDistance / 100);
+        syncManualInputsFromSeconds(baseTargetSeconds);
+        recalculateAndRender();
+      }
+    }
+
+    function syncManualInputsFromSeconds(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      const hs = Math.round((sec - Math.floor(sec)) * 100);
+      document.getElementById('in-min').value = m;
+      document.getElementById('in-sec').value = s;
+      document.getElementById('in-hundredths').value = String(hs).padStart(2, '0');
+      
+      const pacePer100 = sec / (currentDistance / 100);
+      document.getElementById('in-pace-100').value = formatTime(pacePer100);
+    }
+
+    // County Reference Handlers
+    function getSelectedCountyTime() {
+      const gender = document.getElementById('county-gender').value;
+      const age = document.getElementById('county-age').value;
+      const key = `${currentDistance}_${currentCourse}`;
+      return (COUNTY_STANDARDS[gender] && COUNTY_STANDARDS[gender][age] && COUNTY_STANDARDS[gender][age][key]) || 720.0;
+    }
+
+    function updateCountyDisplay() {
+      const timeSec = getSelectedCountyTime();
+      document.getElementById('county-benchmark-display').innerText = formatTime(timeSec);
+      const gender = document.getElementById('county-gender').value === 'male' ? 'Open / Male' : 'Female';
+      const ageText = document.getElementById('county-age').selectedOptions[0].text;
+      const isSC = currentCourse === 'SC';
+      const courseText = isSC ? '25m Short Course' : '50m Long Course (Converted)';
+      
+      const genderKey = document.getElementById('county-gender').value;
+      const ageKey = document.getElementById('county-age').value;
+      const info = COUNTY_STANDARDS[genderKey] && COUNTY_STANDARDS[genderKey][ageKey];
+      const note = (info && info.note) ? ` (${info.note})` : '';
+
+      document.getElementById('county-desc-display').innerText = `2026 Cut &bull; ${gender} ${ageText} &bull; ${currentDistance}m ${courseText}${note}`;
+    }
+
+    // Modal Sheet Handlers for 2026 County Times
+    let currentModalGender = 'male';
+
+    function openCountyModal() {
+      const activeGender = document.getElementById('county-gender').value;
+      switchModalGender(activeGender);
+      document.getElementById('county-standards-modal').classList.remove('hidden');
+    }
+
+    function closeCountyModal() {
+      document.getElementById('county-standards-modal').classList.add('hidden');
+    }
+
+    function switchModalGender(g) {
+      currentModalGender = g;
+      const btnM = document.getElementById('modal-tab-male');
+      const btnF = document.getElementById('modal-tab-female');
+      if (g === 'male') {
+        btnM.className = "px-4 py-1.5 rounded-lg bg-sky-600 text-white transition";
+        btnF.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        btnF.className = "px-4 py-1.5 rounded-lg bg-sky-600 text-white transition";
+        btnM.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      }
+      renderModalTable();
+    }
+
+    function renderModalTable() {
+      const tbody = document.getElementById('modal-county-table-body');
+      tbody.innerHTML = '';
+      const dataset = COUNTY_MATRIX_2026[currentModalGender];
+      const ages = ['10', '11', '12', '13', '14', '15', '16', '17', '18+'];
+
+      for (const [event, ageObj] of Object.entries(dataset)) {
+        const isDistance = event === '200 Freestyle' || event === '400 Freestyle' || event === '800 Freestyle' || event === '1500 Freestyle';
+        const tr = document.createElement('tr');
+        tr.className = isDistance ? "bg-sky-950/30 hover:bg-sky-900/40 transition font-bold" : "hover:bg-slate-800/40 transition";
+        
+        let html = `<td class="py-2 px-3 font-semibold text-slate-200 sticky left-0 bg-slate-900 z-10 flex items-center gap-1.5">
+          ${isDistance ? '<span class="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></span>' : ''}
+          <span>${event}</span>
+        </td>`;
+
+        ages.forEach(a => {
+          const sec = ageObj[a];
+          if (sec === null || sec === undefined) {
+            html += `<td class="py-2 px-2 text-center text-slate-600">—</td>`;
+          } else {
+            const timeFormatted = formatTime(sec);
+            const clickable = isDistance ? `cursor-pointer hover:text-sky-400 text-sky-300 underline decoration-sky-500/40 underline-offset-2` : `text-slate-300`;
+            const clickAttr = isDistance ? `onclick="selectCountyFromModal('${event}', '${a}', ${sec})"` : '';
+            html += `<td class="py-2 px-2 text-center ${clickable}" ${clickAttr} title="${isDistance ? 'Click to load into pacer' : ''}">${timeFormatted}</td>`;
+          }
+        });
+
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function selectCountyFromModal(event, age, seconds) {
+      let dist = 800;
+      if (event.includes('200')) dist = 200;
+      else if (event.includes('400')) dist = 400;
+      else if (event.includes('800')) dist = 800;
+      else if (event.includes('1500')) dist = 1500;
+      setDistance(dist);
+      setCourse('SC');
+      document.getElementById('county-gender').value = currentModalGender;
+      
+      const mappedAge = age === '18+' ? '18_plus' : age;
+      document.getElementById('county-age').value = mappedAge;
+      
+      switchInputTab('county');
+      loadCountyCutToInputs();
+      closeCountyModal();
+      showToast(`Loaded 2026 ${event} standard (${formatTime(seconds)})`);
+    }
+
+    function loadCountyCutToInputs() {
+      updateCountyDisplay();
+      baseTargetSeconds = getSelectedCountyTime();
+      syncManualInputsFromSeconds(baseTargetSeconds);
+      recalculateAndRender();
+    }
+
+        // Core Calculation & Pacing Modeling Engine
+    function recalculateAndRender() {
+      const finalTargetTime = baseTargetSeconds * (1 + (targetOffsetPct / 100));
+      const totalHundreds = currentDistance / 100;
+      const flatAvgPer100 = finalTargetTime / totalHundreds;
+
+      calculatedSplits100 = [];
+      let splits = [];
+
+      if (currentStrategy === 'flat') {
+        for (let i = 0; i < totalHundreds; i++) {
+          splits.push(flatAvgPer100);
+        }
+      } 
+      else if (currentStrategy === 'tactical') {
+        // Pacing curves adapted to race distance:
+        // 200m: 1st 100 dive speed (+1.2s), 2nd 100 back half holding
+        // 400m: 1st 100 dive speed (+1.5s), 4th 100 finish surge (+1.0s), mid cruise
+        // 800m/1500m: 1st 100 dive speed (+1.7s), last 100 finish surge (+1.2s), mid cruise
+        let diveBonus = 1.70;
+        let kickSurge = 1.20;
+
+        if (currentDistance === 200) {
+          diveBonus = 1.20;
+          kickSurge = 0.80;
+        } else if (currentDistance === 400) {
+          diveBonus = 1.50;
+          kickSurge = 1.00;
+        }
+
+        if (totalHundreds === 2) {
+          // 200m: exactly 2 100m splits
+          const lap1 = (finalTargetTime / 2) - (diveBonus / 2);
+          const lap2 = (finalTargetTime / 2) + (diveBonus / 2);
+          splits = [lap1, lap2];
+        } else {
+          const cruisePace = (finalTargetTime + diveBonus + kickSurge) / totalHundreds;
+
+          for (let i = 0; i < totalHundreds; i++) {
+            if (i === 0) {
+              splits.push(cruisePace - diveBonus);
+            } else if (i === totalHundreds - 1) {
+              splits.push(cruisePace - kickSurge);
+            } else {
+              let rhythmAdj = 0;
+              if (i === 1) rhythmAdj = -0.2;
+              else if (i === totalHundreds - 2) rhythmAdj = 0.15;
+              splits.push(cruisePace + rhythmAdj);
+            }
+          }
+        }
+
+        const currentSum = splits.reduce((a, b) => a + b, 0);
+        const diff = (finalTargetTime - currentSum) / totalHundreds;
+        splits = splits.map(s => s + diff);
+      } 
+      else if (currentStrategy === 'negative') {
+        const half = totalHundreds / 2;
+        const frontBias = currentDistance <= 400 ? 0.40 : 0.70;
+        const backBias = -frontBias;
+        
+        for (let i = 0; i < totalHundreds; i++) {
+          if (i === 0) {
+            splits.push(flatAvgPer100 + frontBias - (currentDistance <= 400 ? 0.8 : 1.2));
+          } else if (i < half) {
+            splits.push(flatAvgPer100 + frontBias);
+          } else if (i === totalHundreds - 1) {
+            splits.push(flatAvgPer100 + backBias - 0.6);
+          } else {
+            splits.push(flatAvgPer100 + backBias);
+          }
+        }
+
+        const currentSum = splits.reduce((a, b) => a + b, 0);
+        const diff = (finalTargetTime - currentSum) / totalHundreds;
+        splits = splits.map(s => s + diff);
+      }
+
+      // Tactical Directives by Distance
+      let runningTime = 0;
+      calculatedSplits100 = splits.map((splitSec, idx) => {
+        runningTime += splitSec;
+        const dist = (idx + 1) * 100;
+        let note = "Aerobic cruise & turn rhythm";
+
+        if (currentDistance === 200) {
+          if (idx === 0) note = "Dive start & establish easy speed cadence";
+          else note = "The crucial 2nd 100m! Elevate kick and sprint home";
+        } else if (currentDistance === 400) {
+          if (idx === 0) note = "Block takeoff; establish clean race stroke rate";
+          else if (idx === 1) note = "Settle into CSS pace; long stroke glide";
+          else if (idx === 2) note = "Attack the 3rd 100m! Build 4-beat into 6-beat kick";
+          else note = "Final lap surge; empty the tank to wall touch";
+        } else {
+          // 800m & 1500m
+          if (idx === 0) note = "Dive start & establish clean stroke rate";
+          else if (idx === 1) note = "Settle into CSS pace; control breathing pattern";
+          else if (dist === currentDistance / 2) note = "Halfway marker; maintain high elbow catch";
+          else if (dist === currentDistance - 200) note = "Build kick 4-beat into 6-beat; pass fatigue";
+          else if (dist === currentDistance - 100) note = "Final lap surge; empty the tank to wall touch";
+        }
+        
+        return {
+          distance: dist,
+          intervalSplit: splitSec,
+          cumulativeClock: runningTime,
+          diffFromAvg: splitSec - flatAvgPer100,
+          tacticalNote: note
+        };
+      });
+
+      // 50m split breakdown
+      calculatedSplits50 = [];
+      let runningTime50 = 0;
+      calculatedSplits100.forEach((item, index) => {
+        const split100 = item.intervalSplit;
+        let first50 = split100 * 0.49;
+        let second50 = split100 * 0.51;
+
+        if (index === 0) {
+          first50 = split100 * 0.47;
+          second50 = split100 * 0.53;
+        }
+
+        runningTime50 += first50;
+        let note50a = index === 0 ? "Block takeoff & fly kicks" : "Open water cadence";
+        if (currentDistance === 200 && index === 1) note50a = "Work the crucial 3rd 50m! Elevate tempo";
+
+        calculatedSplits50.push({
+          distance: item.distance - 50,
+          intervalSplit: first50,
+          cumulativeClock: runningTime50,
+          diffFromAvg: first50 - (flatAvgPer100 / 2),
+          tacticalNote: note50a
+        });
+
+        runningTime50 += second50;
+        let note50b = index === (totalHundreds - 1) ? "Final touch surge / full stretch" : "Clean tumble turn & streamline";
+
+        calculatedSplits50.push({
+          distance: item.distance,
+          intervalSplit: second50,
+          cumulativeClock: runningTime50,
+          diffFromAvg: second50 - (flatAvgPer100 / 2),
+          tacticalNote: note50b
+        });
+      });
+
+      document.getElementById('stat-total-time').innerText = formatTime(finalTargetTime);
+      document.getElementById('stat-avg-100').innerText = formatTime(flatAvgPer100);
+      document.getElementById('stat-avg-50').innerText = formatSecondsOnly(flatAvgPer100 / 2);
+      
+      const halfwayIdx = Math.max(0, Math.floor(totalHundreds / 2) - 1);
+      const halfwayData = calculatedSplits100[halfwayIdx];
+      document.getElementById('stat-halfway-time').innerText = formatTime(halfwayData.cumulativeClock);
+
+      const statusBadge = document.getElementById('stat-status-badge');
+      if (activeInputTab === 'county') {
+        statusBadge.innerText = `County Standard (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
+      } else {
+        statusBadge.innerText = targetOffsetPct === 0 ? 'Custom Goal Pace' : `PB Target (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
+      }
+
+      document.getElementById('table-summary-tag').innerText = `${currentDistance}m ${currentCourse === 'SC' ? 'Short Course (25m)' : 'Long Course (50m)'} &bull; ${formatTime(finalTargetTime)}`;
+
+      renderPaceGraph(splits, flatAvgPer100);
+      renderPacingTable();
+    }
+
+    // Render Mini Bar Visualizer
+    function renderPaceGraph(splits, avg) {
+      const container = document.getElementById('pace-bars-container');
+      container.innerHTML = '';
+      
+      const minPace = Math.min(...splits);
+      const maxPace = Math.max(...splits);
+      const range = (maxPace - minPace) || 1;
+
+      splits.forEach((s, idx) => {
+        const barWrap = document.createElement('div');
+        barWrap.className = "flex-1 flex flex-col items-center h-full justify-end group relative";
+
+        const normalized = 1 - ((s - minPace) / (range || 1));
+        const heightPct = Math.round(35 + (normalized * 60));
+
+        const bar = document.createElement('div');
+        let colorClass = "bg-sky-500/80 group-hover:bg-sky-400";
+        if (idx === 0) colorClass = "bg-cyan-400 group-hover:bg-cyan-300";
+        else if (idx === splits.length - 1) colorClass = "bg-emerald-400 group-hover:bg-emerald-300";
+
+        bar.className = `w-full rounded-t-sm transition-all duration-300 ${colorClass}`;
+        bar.style.height = `${heightPct}%`;
+
+        const tip = document.createElement('div');
+        tip.className = "absolute -top-8 bg-slate-950 border border-slate-700 text-slate-200 text-[9px] font-mono-num px-1.5 py-0.5 rounded shadow pointer-events-none opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-10";
+        tip.innerText = `${(idx + 1) * 100}m: ${formatSecondsOnly(s)}s`;
+
+        barWrap.appendChild(tip);
+        barWrap.appendChild(bar);
+        container.appendChild(barWrap);
+      });
+    }
+
+    // Render Table Rows
+    function renderPacingTable() {
+      const tbody = document.getElementById('pacing-table-body');
+      tbody.innerHTML = '';
+      const dataset = splitInterval === 100 ? calculatedSplits100 : calculatedSplits50;
+
+      dataset.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/40";
+        
+        const isStart = i === 0;
+        const isFinish = i === dataset.length - 1;
+        const isHalf = row.distance === (currentDistance / 2);
+
+        if (isFinish) tr.classList.add("bg-sky-950/20");
+        else if (isHalf) tr.classList.add("bg-slate-900/40");
+
+        const diffVal = row.diffFromAvg;
+        let diffBadge = "";
+        if (Math.abs(diffVal) < 0.05) {
+          diffBadge = `<span class="text-slate-400 font-medium">EVEN</span>`;
+        } else if (diffVal < 0) {
+          diffBadge = `<span class="text-emerald-400 font-semibold">${diffVal.toFixed(2)}s</span>`;
+        } else {
+          diffBadge = `<span class="text-amber-400 font-semibold">+${diffVal.toFixed(2)}s</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 sm:px-5 font-bold text-white flex items-center gap-1.5">
+            <span>${row.distance}m</span>
+            ${isFinish ? '<span class="px-1 py-0.2 rounded text-[9px] bg-sky-500/20 text-sky-300 uppercase tracking-wider font-extrabold">Touch</span>' : ''}
+            ${isHalf ? '<span class="px-1 py-0.2 rounded text-[9px] bg-emerald-500/20 text-emerald-300 uppercase tracking-wider font-extrabold">Half</span>' : ''}
+          </td>
+          <td class="py-2.5 px-3 sm:px-5 text-sky-400 font-bold">${formatTime(row.intervalSplit)}</td>
+          <td class="py-2.5 px-3 sm:px-5 text-slate-100 font-black">${formatTime(row.cumulativeClock)}</td>
+          <td class="py-2.5 px-3 sm:px-5 text-[10px] sm:text-[11px] font-mono-num">${diffBadge}</td>
+          <td class="py-2.5 px-3 sm:px-5 font-sans text-xs text-slate-300">
+            <span class="inline-block w-1.5 h-1.5 rounded-full ${isFinish ? 'bg-emerald-400' : isStart ? 'bg-cyan-400' : 'bg-slate-500'} mr-1.5"></span>
+            ${row.tacticalNote}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Share or Copy Feature (Uses Mobile OS Share Sheet if available)
+    async function shareOrCopyPacing() {
+      const dataset = splitInterval === 100 ? calculatedSplits100 : calculatedSplits50;
+      let text = `🏊 AquaPace Race Plan - ${currentDistance}m Free (${currentCourse})\n`;
+      text += `⏱ Target: ${formatTime(dataset[dataset.length - 1].cumulativeClock)} | Strategy: ${document.getElementById('select-strategy').selectedOptions[0].text}\n\n`;
+      text += `Splits:\n`;
+
+      dataset.forEach(row => {
+        text += `${row.distance}m: ${formatTime(row.intervalSplit)} (Clock: ${formatTime(row.cumulativeClock)})\n`;
+      });
+      text += `\nGenerated by AquaPace Pro`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `AquaPace ${currentDistance}m Free Plan`,
+            text: text
+          });
+          showToast("Race plan shared!");
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            copyToClipboard(text);
+          }
+          return;
+        }
+      }
+      copyToClipboard(text);
+    }
+
+    function copyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("Pacing Card copied to clipboard!");
+      } catch (err) {
+        showToast("Could not copy card");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // Saved Swimmer Plans (LocalStorage)
+    function promptSavePlan() {
+      const defaultName = `Swimmer ${currentDistance}m (${currentCourse})`;
+      const name = prompt("Enter a name for this swimmer's pace plan:", defaultName);
+      if (!name || !name.trim()) return;
+
+      const plan = {
+        name: name.trim(),
+        distance: currentDistance,
+        course: currentCourse,
+        strategy: currentStrategy,
+        baseTargetSeconds: baseTargetSeconds,
+        targetOffsetPct: targetOffsetPct,
+        activeInputTab: activeInputTab,
+        gender: document.getElementById('county-gender').value,
+        age: document.getElementById('county-age').value,
+        savedAt: new Date().toISOString()
+      };
+
+      const existing = JSON.parse(localStorage.getItem('aquapace_plans') || '[]');
+      existing.push(plan);
+      localStorage.setItem('aquapace_plans', JSON.stringify(existing));
+      refreshSavedPlansList();
+      showToast(`Saved plan: "${name.trim()}"`);
+    }
+
+    function refreshSavedPlansList() {
+      const select = document.getElementById('saved-plans-select');
+      const existing = JSON.parse(localStorage.getItem('aquapace_plans') || '[]');
+      select.innerHTML = '<option value="">Load Saved Plan...</option>';
+      existing.forEach((p, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.text = `${p.name} (${p.distance}m - ${formatTime(p.baseTargetSeconds)})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function loadSavedPlan(indexStr) {
+      if (indexStr === "") return;
+      const index = parseInt(indexStr);
+      const existing = JSON.parse(localStorage.getItem('aquapace_plans') || '[]');
+      const plan = existing[index];
+      if (!plan) return;
+
+      setDistance(plan.distance);
+      setCourse(plan.course);
+      document.getElementById('select-strategy').value = plan.strategy;
+      onStrategyChange(plan.strategy);
+
+      baseTargetSeconds = plan.baseTargetSeconds;
+      syncManualInputsFromSeconds(baseTargetSeconds);
+
+      document.getElementById('offset-slider').value = plan.targetOffsetPct || 0;
+      onOffsetChange(plan.targetOffsetPct || 0);
+
+      if (plan.gender) document.getElementById('county-gender').value = plan.gender;
+      if (plan.age) document.getElementById('county-age').value = plan.age;
+
+      switchInputTab(plan.activeInputTab || 'manual');
+      showToast(`Loaded "${plan.name}"`);
+    }
+
+    function downloadCSV() {
+      const dataset = splitInterval === 100 ? calculatedSplits100 : calculatedSplits50;
+      let csv = "Distance_m,Interval_Split_Time,Cumulative_Clock_Time,Split_Seconds,Cumulative_Seconds,Tactical_Directive\n";
+      
+      dataset.forEach(row => {
+        csv += `${row.distance},"${formatTime(row.intervalSplit)}","${formatTime(row.cumulativeClock)}",${row.intervalSplit.toFixed(2)},${row.cumulativeClock.toFixed(2)},"${row.tacticalNote}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `aquapace_${currentDistance}m_${currentCourse}_pacing.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV file exported successfully");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.innerText = msg;
+      toast.classList.remove('-translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-24', 'opacity-0');
+      }, 2600);
+    }
+  </script>
+
+  <!-- Full 2026 County Standards Modal -->
+  <div id="county-standards-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 no-print">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white leading-tight">2026 County Championship Standards</h3>
+            <p class="text-xs text-slate-400">Official Short Course (25m) Qualifying Times</p>
+          </div>
+        </div>
+        <button onclick="closeCountyModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Gender Switcher in Modal -->
+      <div class="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3">
+        <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+          <button id="modal-tab-male" onclick="switchModalGender('male')" class="px-4 py-1.5 rounded-lg bg-sky-600 text-white transition">Open / Male</button>
+          <button id="modal-tab-female" onclick="switchModalGender('female')" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Female</button>
+        </div>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">Tap any 200m, 400m, 800m or 1500m time to load into pacer</span>
+      </div>
+
+      <!-- Modal Table -->
+      <div class="overflow-auto flex-1 p-3 sm:p-4">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-950 text-slate-400 text-[10px] uppercase tracking-wider font-semibold border-b border-slate-800">
+              <th class="py-2.5 px-3 sticky left-0 bg-slate-950 z-10">Event</th>
+              <th class="py-2.5 px-2 text-center">10 Yrs</th>
+              <th class="py-2.5 px-2 text-center">11 Yrs</th>
+              <th class="py-2.5 px-2 text-center">12 Yrs</th>
+              <th class="py-2.5 px-2 text-center">13 Yrs</th>
+              <th class="py-2.5 px-2 text-center">14 Yrs</th>
+              <th class="py-2.5 px-2 text-center">15 Yrs</th>
+              <th class="py-2.5 px-2 text-center">16 Yrs</th>
+              <th class="py-2.5 px-2 text-center">17 Yrs</th>
+              <th class="py-2.5 px-2 text-center">18+ Yrs</th>
+            </tr>
+          </thead>
+          <tbody id="modal-county-table-body" class="divide-y divide-slate-800/60 font-mono-num text-[11px]">
+            <!-- Injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <span>Times derived from official 2026 County Championship Consideration standards.</span>
+        <button onclick="closeCountyModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
