@@ -1,6 +1,6 @@
 # AquaPace Pro — Mobile Distance Swimming Pace App
 
-AquaPace Pro is an offline-capable mobile app tailored specifically for competitive age-group swimmers (200m, 400m, 800m & 1500m Freestyle) and swim coaches.
+AquaPace Pro is an offline-capable mobile app tailored specifically for competitive age-group swimmers (All Competitive Strokes (Free, Back, Breast, Fly, IM) from 50m to 1500m) and swim coaches.
 
 ---
 

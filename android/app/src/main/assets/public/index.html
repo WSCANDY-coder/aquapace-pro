@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>AquaPace Pro - 200m, 400m, 800m & 1500m Freestyle Pace App</title>
+  <title>AquaPace Pro - Multi-Stroke Swim Pace Calculator & 2026 Standards</title>
   
   <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="manifest.json">
@@ -169,13 +169,20 @@
             <h1 class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">AquaPace <span class="text-sky-400">Pro</span></h1>
             <span class="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800/60 hidden sm:inline">Race Pacer</span>
           </div>
-          <p class="text-[11px] text-slate-400 leading-none">200m, 400m, 800m & 1500m Freestyle</p>
+          <p class="text-[11px] text-slate-400 leading-none">All Strokes & Distances: Free, Back, Breast, Fly & IM</p>
         </div>
       </div>
 
       <!-- Quick Action Utilities (Optimized for Mobile Poolside) -->
       <div class="flex items-center gap-1.5 sm:gap-2 no-print">
         
+        <!-- Download / Install App Modal Trigger -->
+        <button onclick="openInstallModal()" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm shadow-sky-600/30 active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden xs:inline sm:inline">Download App</span>
+          <span class="inline xs:hidden sm:hidden">Install</span>
+        </button>
+
         <!-- Screen Wake Lock Toggle (Poolside Screen Saver Prevention) -->
         <button id="btn-wakelock" onclick="toggleWakeLock()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition" title="Keep screen awake poolside">
           <svg id="icon-wakelock" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -201,25 +208,40 @@
   <!-- Main Content Layout -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-4 space-y-4">
     
-    <!-- Top Global Toggles: Distance, Course & Tactical Strategy -->
+    <!-- Top Global Toggles: Stroke, Distance, Course & Tactical Strategy -->
     <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-5 backdrop-blur shadow-xl shadow-black/40">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
-        <!-- Distance Select -->
+        <!-- 1. Stroke Selection -->
         <div>
           <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            Race Distance
+            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Racing Stroke
           </label>
-          <div class="grid grid-cols-4 p-1 bg-slate-950 rounded-xl border border-slate-800 gap-1">
-            <button type="button" onclick="setDistance(200)" id="btn-dist-200" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">200m</button>
-            <button type="button" onclick="setDistance(400)" id="btn-dist-400" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">400m</button>
-            <button type="button" onclick="setDistance(800)" id="btn-dist-800" class="py-2 text-xs font-bold rounded-lg bg-sky-600 text-white shadow-sm transition">800m</button>
-            <button type="button" onclick="setDistance(1500)" id="btn-dist-1500" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">1500m</button>
+          <select id="select-stroke" onchange="setStroke(this.value)" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <option value="Freestyle" selected>Freestyle (Free)</option>
+            <option value="Backstroke">Backstroke (Back)</option>
+            <option value="Breaststroke">Breaststroke (Breast)</option>
+            <option value="Butterfly">Butterfly (Fly)</option>
+            <option value="Individual Medley">Individual Medley (IM)</option>
+          </select>
+        </div>
+
+        <!-- 2. Distance Select -->
+        <div>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Race Distance
+            </span>
+            <span id="label-stroke-tag" class="text-[10px] text-sky-400 font-medium font-mono-num">Freestyle</span>
+          </label>
+          <div id="distance-buttons-container" class="grid grid-cols-3 sm:grid-cols-6 p-1 bg-slate-950 rounded-xl border border-slate-800 gap-1">
+            <!-- Dynamically populated by renderDistanceButtons() -->
           </div>
         </div>
 
-        <!-- Course Select -->
+        <!-- 3. Course Select -->
         <div>
           <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -231,7 +253,7 @@
           </div>
         </div>
 
-        <!-- Tactical Strategy Model -->
+        <!-- 4. Tactical Strategy Model -->
         <div>
           <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -620,125 +642,274 @@
     // ==========================================
     const COUNTY_MATRIX_2026 = {"female": {"50 Freestyle": {"10": 38.0, "11": 38.0, "12": 35.0, "13": 33.0, "14": 32.0, "15": 31.5, "16": 31.0, "17": 30.5, "18+": 30.0}, "100 Freestyle": {"10": 88.0, "11": 88.0, "12": 80.0, "13": 73.0, "14": 69.5, "15": 68.0, "16": 68.0, "17": 68.0, "18+": 65.0}, "200 Freestyle": {"10": 195.0, "11": 195.0, "12": 170.0, "13": 155.0, "14": 150.0, "15": 147.0, "16": 146.0, "17": 145.0, "18+": 144.0}, "400 Freestyle": {"10": 403.0, "11": 403.0, "12": 370.0, "13": 330.0, "14": 320.0, "15": 318.0, "16": 310.0, "17": 309.0, "18+": 302.0}, "800 Freestyle": {"10": null, "11": null, "12": 735.0, "13": 690.0, "14": 680.0, "15": 665.0, "16": 660.0, "17": 650.0, "18+": 650.0}, "1500 Freestyle": {"10": null, "11": null, "12": 1800.0, "13": 1440.0, "14": 1380.0, "15": 1320.0, "16": 1260.0, "17": 1260.0, "18+": 1260.0}, "50 Backstroke": {"10": 48.0, "11": 48.0, "12": 43.0, "13": 40.5, "14": 39.7, "15": 37.6, "16": 37.6, "17": 37.2, "18+": 37.2}, "100 Backstroke": {"10": 105.0, "11": 105.0, "12": 93.0, "13": 84.0, "14": 82.0, "15": 80.0, "16": 80.0, "17": 79.5, "18+": 78.0}, "200 Backstroke": {"10": 238.0, "11": 238.0, "12": 200.0, "13": 190.0, "14": 178.0, "15": 174.0, "16": 172.0, "17": 172.0, "18+": 165.0}, "50 Breaststroke": {"10": 56.0, "11": 56.0, "12": 49.0, "13": 46.0, "14": 44.0, "15": 43.0, "16": 42.0, "17": 42.0, "18+": 41.5}, "100 Breaststroke": {"10": 120.0, "11": 120.0, "12": 105.0, "13": 98.0, "14": 94.0, "15": 90.0, "16": 90.0, "17": 89.0, "18+": 90.0}, "200 Breaststroke": {"10": 250.0, "11": 250.0, "12": 225.0, "13": 210.0, "14": 198.0, "15": 197.0, "16": 196.0, "17": 195.0, "18+": 192.0}, "50 Butterfly": {"10": 50.0, "11": 50.0, "12": 44.0, "13": 39.0, "14": 36.5, "15": 36.0, "16": 35.5, "17": 35.0, "18+": 34.5}, "100 Butterfly": {"10": 120.0, "11": 120.0, "12": 110.0, "13": 89.0, "14": 82.0, "15": 81.0, "16": 81.0, "17": 80.0, "18+": 79.0}, "200 Butterfly": {"10": 252.0, "11": 252.0, "12": 248.0, "13": 245.0, "14": 211.0, "15": 207.0, "16": 203.0, "17": 191.0, "18+": 180.0}, "200 Individual Medley": {"10": 211.0, "11": 211.0, "12": 200.0, "13": 180.0, "14": 178.0, "15": 175.0, "16": 174.0, "17": 170.0, "18+": 168.0}, "400 Individual Medley": {"10": null, "11": null, "12": 448.0, "13": 408.0, "14": 362.0, "15": 348.0, "16": 343.0, "17": 343.0, "18+": 343.0}}, "male": {"50 Freestyle": {"10": 44.0, "11": 44.0, "12": 37.0, "13": 35.0, "14": 32.0, "15": 30.0, "16": 29.5, "17": 29.1, "18+": 28.9}, "100 Freestyle": {"10": 93.0, "11": 93.0, "12": 80.0, "13": 75.0, "14": 70.0, "15": 65.0, "16": 64.0, "17": 64.0, "18+": 61.0}, "200 Freestyle": {"10": 186.0, "11": 186.0, "12": 170.0, "13": 165.0, "14": 145.0, "15": 140.0, "16": 136.0, "17": 135.0, "18+": 134.0}, "400 Freestyle": {"10": 390.0, "11": 390.0, "12": 385.0, "13": 348.0, "14": 316.0, "15": 300.0, "16": 298.0, "17": 297.0, "18+": 296.0}, "800 Freestyle": {"10": null, "11": null, "12": 735.0, "13": 730.0, "14": 724.0, "15": 675.0, "16": 675.0, "17": 665.0, "18+": 670.0}, "1500 Freestyle": {"10": null, "11": null, "12": 1500.0, "13": 1320.0, "14": 1290.0, "15": 1275.0, "16": 1270.0, "17": 1200.0, "18+": 1200.0}, "50 Backstroke": {"10": 54.0, "11": 54.0, "12": 44.0, "13": 41.0, "14": 39.0, "15": 38.5, "16": 36.0, "17": 36.0, "18+": 34.0}, "100 Backstroke": {"10": 110.0, "11": 110.0, "12": 94.5, "13": 85.5, "14": 81.0, "15": 76.0, "16": 74.5, "17": 73.5, "18+": 73.0}, "200 Backstroke": {"10": 217.0, "11": 217.0, "12": 205.0, "13": 185.0, "14": 178.0, "15": 165.0, "16": 159.0, "17": 157.0, "18+": 155.0}, "50 Breaststroke": {"10": 59.0, "11": 59.0, "12": 52.0, "13": 48.0, "14": 43.8, "15": 40.8, "16": 37.0, "17": 37.0, "18+": 36.0}, "100 Breaststroke": {"10": 125.0, "11": 125.0, "12": 115.0, "13": 102.0, "14": 97.0, "15": 89.0, "16": 87.0, "17": 84.0, "18+": 83.0}, "200 Breaststroke": {"10": 255.0, "11": 255.0, "12": 220.0, "13": 212.0, "14": 202.0, "15": 192.0, "16": 190.0, "17": 185.0, "18+": 180.0}, "50 Butterfly": {"10": 54.0, "11": 54.0, "12": 48.0, "13": 43.0, "14": 39.5, "15": 37.0, "16": 35.0, "17": 35.0, "18+": 34.0}, "100 Butterfly": {"10": 130.0, "11": 130.0, "12": 115.0, "13": 112.0, "14": 100.0, "15": 90.0, "16": 80.0, "17": 76.0, "18+": 70.0}, "200 Butterfly": {"10": 256.0, "11": 256.0, "12": 255.0, "13": 240.0, "14": 227.0, "15": 223.0, "16": 219.0, "17": 192.5, "18+": 165.5}, "200 Individual Medley": {"10": 220.0, "11": 220.0, "12": 205.0, "13": 195.0, "14": 170.0, "15": 165.0, "16": 158.0, "17": 157.0, "18+": 150.0}, "400 Individual Medley": {"10": null, "11": null, "12": 448.0, "13": 390.0, "14": 380.0, "15": 345.0, "16": 340.0, "17": 335.0, "18+": 330.0}}};
 
-        // Fast lookup for 200m, 400m, 800m and 1500m Freestyle 2026 standards
+            // Fast lookup for 50m, 100m, 200m, 400m, 800m and 1500m Freestyle 2026 standards
     // Note: Long Course (50m) incorporates standard Swim England turn differential
     const COUNTY_STANDARDS = {
-      male: {
-        '10': {
-          '200_SC': 186.0, '200_LC': 188.4,
-          '400_SC': 390.0, '400_LC': 394.8,
-          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1500.0, '1500_LC': 1518.0,
-          note: '800m/1500m start at age 12; showing age 12 cut'
-        },
-        '11': {
-          '200_SC': 186.0, '200_LC': 188.4,
-          '400_SC': 390.0, '400_LC': 394.8,
-          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1500.0, '1500_LC': 1518.0,
-          note: '800m/1500m start at age 12; showing age 12 cut'
-        },
-        '12': {
-          '200_SC': 170.0, '200_LC': 172.4,
-          '400_SC': 385.0, '400_LC': 389.8,
-          '800_SC': 735.0, '800_LC': 744.6,
-          '1500_SC': 1500.0, '1500_LC': 1518.0
-        },
-        '13': {
-          '200_SC': 165.0, '200_LC': 167.4,
-          '400_SC': 348.0, '400_LC': 352.8,
-          '800_SC': 730.0, '800_LC': 739.6,
-          '1500_SC': 1320.0, '1500_LC': 1338.0
-        },
-        '14': {
-          '200_SC': 145.0, '200_LC': 147.4,
-          '400_SC': 316.0, '400_LC': 320.8,
-          '800_SC': 724.0, '800_LC': 733.6,
-          '1500_SC': 1290.0, '1500_LC': 1308.0
-        },
-        '15': {
-          '200_SC': 140.0, '200_LC': 142.4,
-          '400_SC': 300.0, '400_LC': 304.8,
-          '800_SC': 675.0, '800_LC': 684.6,
-          '1500_SC': 1275.0, '1500_LC': 1293.0
-        },
-        '16': {
-          '200_SC': 136.0, '200_LC': 138.4,
-          '400_SC': 298.0, '400_LC': 302.8,
-          '800_SC': 675.0, '800_LC': 684.6,
-          '1500_SC': 1270.0, '1500_LC': 1288.0
-        },
-        '17': {
-          '200_SC': 135.0, '200_LC': 137.4,
-          '400_SC': 297.0, '400_LC': 301.8,
-          '800_SC': 665.0, '800_LC': 674.6,
-          '1500_SC': 1200.0, '1500_LC': 1218.0
-        },
-        '18_plus': {
-          '200_SC': 134.0, '200_LC': 136.4,
-          '400_SC': 296.0, '400_LC': 300.8,
-          '800_SC': 670.0, '800_LC': 679.6,
-          '1500_SC': 1200.0, '1500_LC': 1218.0
-        }
+      "male": {
+            "10": {
+                  "50_SC": 44.0,
+                  "50_LC": 44.6,
+                  "100_SC": 93.0,
+                  "100_LC": 94.2,
+                  "200_SC": 186.0,
+                  "200_LC": 188.4,
+                  "400_SC": 390.0,
+                  "400_LC": 394.8,
+                  "note": "800m/1500m start at age 12; showing age 12 cut",
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1500.0,
+                  "1500_LC": 1518.0
+            },
+            "11": {
+                  "50_SC": 44.0,
+                  "50_LC": 44.6,
+                  "100_SC": 93.0,
+                  "100_LC": 94.2,
+                  "200_SC": 186.0,
+                  "200_LC": 188.4,
+                  "400_SC": 390.0,
+                  "400_LC": 394.8,
+                  "note": "800m/1500m start at age 12; showing age 12 cut",
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1500.0,
+                  "1500_LC": 1518.0
+            },
+            "12": {
+                  "50_SC": 37.0,
+                  "50_LC": 37.6,
+                  "100_SC": 80.0,
+                  "100_LC": 81.2,
+                  "200_SC": 170.0,
+                  "200_LC": 172.4,
+                  "400_SC": 385.0,
+                  "400_LC": 389.8,
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1500.0,
+                  "1500_LC": 1518.0
+            },
+            "13": {
+                  "50_SC": 35.0,
+                  "50_LC": 35.6,
+                  "100_SC": 75.0,
+                  "100_LC": 76.2,
+                  "200_SC": 165.0,
+                  "200_LC": 167.4,
+                  "400_SC": 348.0,
+                  "400_LC": 352.8,
+                  "800_SC": 730.0,
+                  "800_LC": 739.6,
+                  "1500_SC": 1320.0,
+                  "1500_LC": 1338.0
+            },
+            "14": {
+                  "50_SC": 32.0,
+                  "50_LC": 32.6,
+                  "100_SC": 70.0,
+                  "100_LC": 71.2,
+                  "200_SC": 145.0,
+                  "200_LC": 147.4,
+                  "400_SC": 316.0,
+                  "400_LC": 320.8,
+                  "800_SC": 724.0,
+                  "800_LC": 733.6,
+                  "1500_SC": 1290.0,
+                  "1500_LC": 1308.0
+            },
+            "15": {
+                  "50_SC": 30.0,
+                  "50_LC": 30.6,
+                  "100_SC": 65.0,
+                  "100_LC": 66.2,
+                  "200_SC": 140.0,
+                  "200_LC": 142.4,
+                  "400_SC": 300.0,
+                  "400_LC": 304.8,
+                  "800_SC": 675.0,
+                  "800_LC": 684.6,
+                  "1500_SC": 1275.0,
+                  "1500_LC": 1293.0
+            },
+            "16": {
+                  "50_SC": 29.5,
+                  "50_LC": 30.1,
+                  "100_SC": 64.0,
+                  "100_LC": 65.2,
+                  "200_SC": 136.0,
+                  "200_LC": 138.4,
+                  "400_SC": 298.0,
+                  "400_LC": 302.8,
+                  "800_SC": 675.0,
+                  "800_LC": 684.6,
+                  "1500_SC": 1270.0,
+                  "1500_LC": 1288.0
+            },
+            "17": {
+                  "50_SC": 29.1,
+                  "50_LC": 29.7,
+                  "100_SC": 64.0,
+                  "100_LC": 65.2,
+                  "200_SC": 135.0,
+                  "200_LC": 137.4,
+                  "400_SC": 297.0,
+                  "400_LC": 301.8,
+                  "800_SC": 665.0,
+                  "800_LC": 674.6,
+                  "1500_SC": 1200.0,
+                  "1500_LC": 1218.0
+            },
+            "18_plus": {
+                  "50_SC": 28.9,
+                  "50_LC": 29.5,
+                  "100_SC": 61.0,
+                  "100_LC": 62.2,
+                  "200_SC": 134.0,
+                  "200_LC": 136.4,
+                  "400_SC": 296.0,
+                  "400_LC": 300.8,
+                  "800_SC": 670.0,
+                  "800_LC": 679.6,
+                  "1500_SC": 1200.0,
+                  "1500_LC": 1218.0
+            }
       },
-      female: {
-        '10': {
-          '200_SC': 195.0, '200_LC': 197.4,
-          '400_SC': 403.0, '400_LC': 407.8,
-          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1800.0, '1500_LC': 1818.0,
-          note: '800m/1500m start at age 12; showing age 12 cut'
-        },
-        '11': {
-          '200_SC': 195.0, '200_LC': 197.4,
-          '400_SC': 403.0, '400_LC': 407.8,
-          '800_SC': 735.0, '800_LC': 744.6, '1500_SC': 1800.0, '1500_LC': 1818.0,
-          note: '800m/1500m start at age 12; showing age 12 cut'
-        },
-        '12': {
-          '200_SC': 170.0, '200_LC': 172.4,
-          '400_SC': 370.0, '400_LC': 374.8,
-          '800_SC': 735.0, '800_LC': 744.6,
-          '1500_SC': 1800.0, '1500_LC': 1818.0
-        },
-        '13': {
-          '200_SC': 155.0, '200_LC': 157.4,
-          '400_SC': 330.0, '400_LC': 334.8,
-          '800_SC': 690.0, '800_LC': 699.6,
-          '1500_SC': 1440.0, '1500_LC': 1458.0
-        },
-        '14': {
-          '200_SC': 150.0, '200_LC': 152.4,
-          '400_SC': 320.0, '400_LC': 324.8,
-          '800_SC': 680.0, '800_LC': 689.6,
-          '1500_SC': 1380.0, '1500_LC': 1398.0
-        },
-        '15': {
-          '200_SC': 147.0, '200_LC': 149.4,
-          '400_SC': 318.0, '400_LC': 322.8,
-          '800_SC': 665.0, '800_LC': 674.6,
-          '1500_SC': 1320.0, '1500_LC': 1338.0
-        },
-        '16': {
-          '200_SC': 146.0, '200_LC': 148.4,
-          '400_SC': 310.0, '400_LC': 314.8,
-          '800_SC': 660.0, '800_LC': 669.6,
-          '1500_SC': 1260.0, '1500_LC': 1278.0
-        },
-        '17': {
-          '200_SC': 145.0, '200_LC': 147.4,
-          '400_SC': 309.0, '400_LC': 313.8,
-          '800_SC': 650.0, '800_LC': 659.6,
-          '1500_SC': 1260.0, '1500_LC': 1278.0
-        },
-        '18_plus': {
-          '200_SC': 144.0, '200_LC': 146.4,
-          '400_SC': 302.0, '400_LC': 306.8,
-          '800_SC': 650.0, '800_LC': 659.6,
-          '1500_SC': 1260.0, '1500_LC': 1278.0
-        }
+      "female": {
+            "10": {
+                  "50_SC": 38.0,
+                  "50_LC": 38.6,
+                  "100_SC": 88.0,
+                  "100_LC": 89.2,
+                  "200_SC": 195.0,
+                  "200_LC": 197.4,
+                  "400_SC": 403.0,
+                  "400_LC": 407.8,
+                  "note": "800m/1500m start at age 12; showing age 12 cut",
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1800.0,
+                  "1500_LC": 1818.0
+            },
+            "11": {
+                  "50_SC": 38.0,
+                  "50_LC": 38.6,
+                  "100_SC": 88.0,
+                  "100_LC": 89.2,
+                  "200_SC": 195.0,
+                  "200_LC": 197.4,
+                  "400_SC": 403.0,
+                  "400_LC": 407.8,
+                  "note": "800m/1500m start at age 12; showing age 12 cut",
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1800.0,
+                  "1500_LC": 1818.0
+            },
+            "12": {
+                  "50_SC": 35.0,
+                  "50_LC": 35.6,
+                  "100_SC": 80.0,
+                  "100_LC": 81.2,
+                  "200_SC": 170.0,
+                  "200_LC": 172.4,
+                  "400_SC": 370.0,
+                  "400_LC": 374.8,
+                  "800_SC": 735.0,
+                  "800_LC": 744.6,
+                  "1500_SC": 1800.0,
+                  "1500_LC": 1818.0
+            },
+            "13": {
+                  "50_SC": 33.0,
+                  "50_LC": 33.6,
+                  "100_SC": 73.0,
+                  "100_LC": 74.2,
+                  "200_SC": 155.0,
+                  "200_LC": 157.4,
+                  "400_SC": 330.0,
+                  "400_LC": 334.8,
+                  "800_SC": 690.0,
+                  "800_LC": 699.6,
+                  "1500_SC": 1440.0,
+                  "1500_LC": 1458.0
+            },
+            "14": {
+                  "50_SC": 32.0,
+                  "50_LC": 32.6,
+                  "100_SC": 69.5,
+                  "100_LC": 70.7,
+                  "200_SC": 150.0,
+                  "200_LC": 152.4,
+                  "400_SC": 320.0,
+                  "400_LC": 324.8,
+                  "800_SC": 680.0,
+                  "800_LC": 689.6,
+                  "1500_SC": 1380.0,
+                  "1500_LC": 1398.0
+            },
+            "15": {
+                  "50_SC": 31.5,
+                  "50_LC": 32.1,
+                  "100_SC": 68.0,
+                  "100_LC": 69.2,
+                  "200_SC": 147.0,
+                  "200_LC": 149.4,
+                  "400_SC": 318.0,
+                  "400_LC": 322.8,
+                  "800_SC": 665.0,
+                  "800_LC": 674.6,
+                  "1500_SC": 1320.0,
+                  "1500_LC": 1338.0
+            },
+            "16": {
+                  "50_SC": 31.0,
+                  "50_LC": 31.6,
+                  "100_SC": 68.0,
+                  "100_LC": 69.2,
+                  "200_SC": 146.0,
+                  "200_LC": 148.4,
+                  "400_SC": 310.0,
+                  "400_LC": 314.8,
+                  "800_SC": 660.0,
+                  "800_LC": 669.6,
+                  "1500_SC": 1260.0,
+                  "1500_LC": 1278.0
+            },
+            "17": {
+                  "50_SC": 30.5,
+                  "50_LC": 31.1,
+                  "100_SC": 68.0,
+                  "100_LC": 69.2,
+                  "200_SC": 145.0,
+                  "200_LC": 147.4,
+                  "400_SC": 309.0,
+                  "400_LC": 313.8,
+                  "800_SC": 650.0,
+                  "800_LC": 659.6,
+                  "1500_SC": 1260.0,
+                  "1500_LC": 1278.0
+            },
+            "18_plus": {
+                  "50_SC": 30.0,
+                  "50_LC": 30.6,
+                  "100_SC": 65.0,
+                  "100_LC": 66.2,
+                  "200_SC": 144.0,
+                  "200_LC": 146.4,
+                  "400_SC": 302.0,
+                  "400_LC": 306.8,
+                  "800_SC": 650.0,
+                  "800_LC": 659.6,
+                  "1500_SC": 1260.0,
+                  "1500_LC": 1278.0
+            }
       }
-    };
+};
 
     // Global State
-    let currentDistance = 800; // 800 or 1500
+    let currentStroke = 'Freestyle'; // 'Freestyle', 'Backstroke', 'Breaststroke', 'Butterfly', 'Individual Medley'
+    let currentDistance = 800; // 50, 100, 200, 400, 800, 1500
     let currentCourse = 'SC';   // 'SC' or 'LC'
     let currentStrategy = 'tactical'; // 'tactical', 'negative', 'flat'
     let splitInterval = 100;   // 100 or 50
@@ -746,15 +917,32 @@
     let targetOffsetPct = 0.0; // percentage shift
     let baseTargetSeconds = 724.0; // Default: 12:04.00 (2026 Male 14 800m SC cut)
 
+    // Allowed distances per stroke
+    const STROKE_DISTANCES = {
+      'Freestyle': [50, 100, 200, 400, 800, 1500],
+      'Backstroke': [50, 100, 200],
+      'Breaststroke': [50, 100, 200],
+      'Butterfly': [50, 100, 200],
+      'Individual Medley': [200, 400]
+    };
+
+    // Swim England standard turn differential between 25m SC and 50m LC
+    const STROKE_TURN_DIFFS = {
+      'Freestyle': { 50: 0.6, 100: 1.2, 200: 2.4, 400: 4.8, 800: 9.6, 1500: 18.0 },
+      'Backstroke': { 50: 0.7, 100: 1.4, 200: 2.8 },
+      'Breaststroke': { 50: 0.8, 100: 1.6, 200: 3.2 },
+      'Butterfly': { 50: 0.6, 100: 1.2, 200: 2.5 },
+      'Individual Medley': { 200: 2.6, 400: 5.2 }
+    };
+
     let calculatedSplits100 = [];
     let calculatedSplits50 = [];
 
     // Initialize UI on load
     window.addEventListener('DOMContentLoaded', () => {
-      syncManualInputsFromSeconds(baseTargetSeconds);
-      updateCountyDisplay();
+      renderDistanceButtons();
       refreshSavedPlansList();
-      recalculateAndRender();
+      switchInputTab('county');
     });
 
     // Formatters
@@ -800,48 +988,93 @@
       }
     }
 
-        // Distance Toggle (200m, 400m, 800m, 1500m)
-    function setDistance(dist) {
-      currentDistance = dist;
-      const distances = [200, 400, 800, 1500];
-      distances.forEach(d => {
-        const btn = document.getElementById(`btn-dist-${d}`);
-        if (btn) {
-          if (d === dist) {
-            btn.className = "py-2 text-xs font-bold rounded-lg bg-sky-600 text-white shadow-sm transition";
-          } else {
-            btn.className = "py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
-          }
+                // Stroke Selection & Dynamic Distance Buttons
+    function setStroke(newStroke) {
+      currentStroke = newStroke;
+      const tag = document.getElementById('label-stroke-tag');
+      if (tag) tag.innerText = newStroke;
+
+      const allowed = STROKE_DISTANCES[newStroke] || [50, 100, 200];
+      if (!allowed.includes(currentDistance)) {
+        // Automatically switch to closest valid distance for this stroke
+        if (currentDistance > 200 && !allowed.includes(currentDistance)) {
+          currentDistance = allowed[allowed.length - 1]; // e.g. 200m for Breast/Back/Fly
+        } else if (!allowed.includes(currentDistance)) {
+          currentDistance = allowed.includes(100) ? 100 : allowed[0];
         }
-      });
-
-      const halfwayLabel = document.getElementById('stat-halfway-label');
-      const graphDistEnd = document.getElementById('graph-dist-end');
-
-      if (dist === 200) {
-        halfwayLabel.innerText = "100m Checkpoint";
-        graphDistEnd.innerText = "200m (Touch)";
-      } else if (dist === 400) {
-        halfwayLabel.innerText = "200m Checkpoint";
-        graphDistEnd.innerText = "400m (Touch)";
-      } else if (dist === 800) {
-        halfwayLabel.innerText = "400m Checkpoint";
-        graphDistEnd.innerText = "800m (Touch)";
-      } else {
-        halfwayLabel.innerText = "750m / 800m Checkpoint";
-        graphDistEnd.innerText = "1500m (Touch)";
       }
+
+      renderDistanceButtons();
+
+      // Always reload the exact standard or scaled baseline for the new stroke
+      if (activeInputTab === 'county') {
+        loadCountyCutToInputs();
+      } else {
+        baseTargetSeconds = getSelectedCountyTime();
+        syncManualInputsFromSeconds(baseTargetSeconds);
+        updateCountyDisplay();
+        recalculateAndRender();
+      }
+    }
+
+    function renderDistanceButtons() {
+      const container = document.getElementById('distance-buttons-container');
+      if (!container) return;
+
+      const allowed = STROKE_DISTANCES[currentStroke] || [50, 100, 200];
+      const cols = allowed.length <= 2 ? 'grid-cols-2' : (allowed.length === 3 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-6');
+      container.className = `grid ${cols} p-1 bg-slate-950 rounded-xl border border-slate-800 gap-1`;
+
+      container.innerHTML = '';
+      allowed.forEach(d => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = `btn-dist-${d}`;
+        btn.innerText = `${d}m`;
+        btn.onclick = () => setDistance(d);
+        if (d === currentDistance) {
+          btn.className = "py-2 text-xs font-bold rounded-lg bg-sky-600 text-white shadow-sm transition";
+        } else {
+          btn.className = "py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
+        }
+        container.appendChild(btn);
+      });
+    }
+
+    // Distance Toggle (50m, 100m, 200m, 400m, 800m, 1500m)
+    function setDistance(newDist) {
+      const prevDist = currentDistance;
+      currentDistance = newDist;
+
+      // Update distance button styles
+      renderDistanceButtons();
 
       if (activeInputTab === 'county') {
         loadCountyCutToInputs();
       } else {
-        // Adjust manual default if switching distance drastically
-        const pacePer100 = baseTargetSeconds / (dist === 200 ? 4 : (dist === 400 ? 8 : (dist === 800 ? 8 : 15)));
-        baseTargetSeconds = Math.round(pacePer100 * (dist / 100));
+        // Safely scale manual target time from previous distance without compounding errors
+        let pace100 = 70.0;
+        if (prevDist === 50) {
+          pace100 = baseTargetSeconds * 2.0;
+        } else if (prevDist > 0) {
+          pace100 = baseTargetSeconds / (prevDist / 100);
+        }
+
+        // Sanity check: keep pace100 within reasonable swimming limits (25s to 180s)
+        if (pace100 < 25 || pace100 > 180 || isNaN(pace100)) {
+          pace100 = getSelectedCountyTime() / (newDist === 50 ? 0.5 : (newDist / 100));
+        }
+
+        if (newDist === 50) {
+          baseTargetSeconds = Math.round((pace100 / 2.0) * 0.94);
+        } else {
+          baseTargetSeconds = Math.round(pace100 * (newDist / 100));
+        }
+
         syncManualInputsFromSeconds(baseTargetSeconds);
+        updateCountyDisplay();
+        recalculateAndRender();
       }
-      updateCountyDisplay();
-      recalculateAndRender();
     }
 
     // Course Toggle
@@ -943,7 +1176,7 @@
         paceSec = parseFloat(parts[0]);
       }
       if (paceSec > 0) {
-        baseTargetSeconds = paceSec * (currentDistance / 100);
+        baseTargetSeconds = currentDistance === 50 ? (paceSec * 0.47) : (paceSec * (currentDistance / 100));
         syncManualInputsFromSeconds(baseTargetSeconds);
         recalculateAndRender();
       }
@@ -957,16 +1190,36 @@
       document.getElementById('in-sec').value = s;
       document.getElementById('in-hundredths').value = String(hs).padStart(2, '0');
       
-      const pacePer100 = sec / (currentDistance / 100);
+      const pacePer100 = currentDistance === 50 ? (sec * 2) : (sec / (currentDistance / 100));
       document.getElementById('in-pace-100').value = formatTime(pacePer100);
     }
 
-    // County Reference Handlers
+    // County Reference Handlers for All Strokes & Distances
     function getSelectedCountyTime() {
       const gender = document.getElementById('county-gender').value;
-      const age = document.getElementById('county-age').value;
-      const key = `${currentDistance}_${currentCourse}`;
-      return (COUNTY_STANDARDS[gender] && COUNTY_STANDARDS[gender][age] && COUNTY_STANDARDS[gender][age][key]) || 720.0;
+      let age = document.getElementById('county-age').value;
+      const eventName = `${currentDistance} ${currentStroke}`;
+      const isLC = currentCourse === 'LC';
+
+      // 800 Free, 1500 Free, 400 IM start at age 12
+      if ((age === '10' || age === '11') && (currentDistance === 800 || currentDistance === 1500 || eventName === '400 Individual Medley')) {
+        age = '12';
+      }
+
+      const ageKey = age === '18_plus' ? '18+' : age;
+      const matrix = COUNTY_MATRIX_2026[gender];
+      if (!matrix || !matrix[eventName]) return 60.0;
+
+      let scSec = matrix[eventName][ageKey];
+      if (!scSec) {
+        scSec = matrix[eventName]['12'] || 60.0;
+      }
+
+      if (isLC) {
+        const diff = (STROKE_TURN_DIFFS[currentStroke] && STROKE_TURN_DIFFS[currentStroke][currentDistance]) || (currentDistance * 0.012);
+        return Math.round((scSec + diff) * 100) / 100;
+      }
+      return scSec;
     }
 
     function updateCountyDisplay() {
@@ -976,13 +1229,14 @@
       const ageText = document.getElementById('county-age').selectedOptions[0].text;
       const isSC = currentCourse === 'SC';
       const courseText = isSC ? '25m Short Course' : '50m Long Course (Converted)';
-      
-      const genderKey = document.getElementById('county-gender').value;
-      const ageKey = document.getElementById('county-age').value;
-      const info = COUNTY_STANDARDS[genderKey] && COUNTY_STANDARDS[genderKey][ageKey];
-      const note = (info && info.note) ? ` (${info.note})` : '';
 
-      document.getElementById('county-desc-display').innerText = `2026 Cut &bull; ${gender} ${ageText} &bull; ${currentDistance}m ${courseText}${note}`;
+      const ageVal = document.getElementById('county-age').value;
+      let note = '';
+      if ((ageVal === '10' || ageVal === '11') && (currentDistance === 800 || currentDistance === 1500 || (currentDistance === 400 && currentStroke === 'Individual Medley'))) {
+        note = ' (Championship event starts at Age 12; showing Age 12 cut)';
+      }
+
+      document.getElementById('county-desc-display').innerText = `2026 Cut &bull; ${gender} ${ageText} &bull; ${currentDistance}m ${currentStroke} (${courseText})${note}`;
     }
 
     // Modal Sheet Handlers for 2026 County Times
@@ -1019,7 +1273,7 @@
       const ages = ['10', '11', '12', '13', '14', '15', '16', '17', '18+'];
 
       for (const [event, ageObj] of Object.entries(dataset)) {
-        const isDistance = event === '200 Freestyle' || event === '400 Freestyle' || event === '800 Freestyle' || event === '1500 Freestyle';
+        const isDistance = event === '50 Freestyle' || event === '100 Freestyle' || event === '200 Freestyle' || event === '400 Freestyle' || event === '800 Freestyle' || event === '1500 Freestyle';
         const tr = document.createElement('tr');
         tr.className = isDistance ? "bg-sky-950/30 hover:bg-sky-900/40 transition font-bold" : "hover:bg-slate-800/40 transition";
         
@@ -1034,8 +1288,8 @@
             html += `<td class="py-2 px-2 text-center text-slate-600">—</td>`;
           } else {
             const timeFormatted = formatTime(sec);
-            const clickable = isDistance ? `cursor-pointer hover:text-sky-400 text-sky-300 underline decoration-sky-500/40 underline-offset-2` : `text-slate-300`;
-            const clickAttr = isDistance ? `onclick="selectCountyFromModal('${event}', '${a}', ${sec})"` : '';
+            const clickable = `cursor-pointer hover:text-sky-400 text-sky-300 underline decoration-sky-500/40 underline-offset-2`;
+            const clickAttr = `onclick="selectCountyFromModal('${event}', '${a}', ${sec})"`;
             html += `<td class="py-2 px-2 text-center ${clickable}" ${clickAttr} title="${isDistance ? 'Click to load into pacer' : ''}">${timeFormatted}</td>`;
           }
         });
@@ -1046,22 +1300,28 @@
     }
 
     function selectCountyFromModal(event, age, seconds) {
-      let dist = 800;
-      if (event.includes('200')) dist = 200;
-      else if (event.includes('400')) dist = 400;
-      else if (event.includes('800')) dist = 800;
-      else if (event.includes('1500')) dist = 1500;
+      const parts = event.trim().split(' ');
+      const dist = parseInt(parts[0]);
+      const stroke = parts.slice(1).join(' ');
+
+      if (stroke) {
+        document.getElementById('select-stroke').value = stroke;
+        currentStroke = stroke;
+        const tag = document.getElementById('label-stroke-tag');
+        if (tag) tag.innerText = stroke;
+      }
+
       setDistance(dist);
       setCourse('SC');
       document.getElementById('county-gender').value = currentModalGender;
-      
+
       const mappedAge = age === '18+' ? '18_plus' : age;
       document.getElementById('county-age').value = mappedAge;
-      
+
       switchInputTab('county');
       loadCountyCutToInputs();
       closeCountyModal();
-      showToast(`Loaded 2026 ${event} standard (${formatTime(seconds)})`);
+      showToast(`Loaded 2026 ${event} (${formatTime(seconds)})`);
     }
 
     function loadCountyCutToInputs() {
@@ -1071,172 +1331,344 @@
       recalculateAndRender();
     }
 
-        // Core Calculation & Pacing Modeling Engine
+                // Core Calculation & Pacing Modeling Engine (50m, 100m, 200m, 400m, 800m, 1500m)
     function recalculateAndRender() {
+      // Ensure target time is positive and valid
+      if (isNaN(baseTargetSeconds) || baseTargetSeconds <= 0) {
+        baseTargetSeconds = getSelectedCountyTime() || 60.0;
+      }
+
       const finalTargetTime = baseTargetSeconds * (1 + (targetOffsetPct / 100));
-      const totalHundreds = currentDistance / 100;
-      const flatAvgPer100 = finalTargetTime / totalHundreds;
+      
+      // Calculate pace per 100m and average 50m split
+      let pacePer100 = 60.0;
+      let avg50Split = 30.0;
+      if (currentDistance === 50) {
+        pacePer100 = finalTargetTime * 2.0;
+        avg50Split = finalTargetTime;
+      } else if (currentDistance === 100) {
+        pacePer100 = finalTargetTime;
+        avg50Split = finalTargetTime / 2.0;
+      } else {
+        const hundreds = currentDistance / 100;
+        pacePer100 = finalTargetTime / hundreds;
+        avg50Split = pacePer100 / 2.0;
+      }
 
       calculatedSplits100 = [];
-      let splits = [];
+      calculatedSplits50 = [];
+      let graphSplits = [];
 
-      if (currentStrategy === 'flat') {
-        for (let i = 0; i < totalHundreds; i++) {
-          splits.push(flatAvgPer100);
+      if (currentDistance === 50) {
+        // 50m Sprint: 25m breakdown
+        const isSC = currentCourse === 'SC';
+        const split25a = Math.round(finalTargetTime * (isSC ? 0.47 : 0.485) * 100) / 100;
+        const split25b = Math.round((finalTargetTime - split25a) * 100) / 100;
+
+        calculatedSplits100 = [
+          {
+            distance: 50,
+            intervalSplit: finalTargetTime,
+            cumulativeClock: finalTargetTime,
+            diffFromAvg: 0,
+            tacticalNote: `Full 50m ${currentStroke} sprint: Explosive dive, clean breakout, maximum turnover to touch`
+          }
+        ];
+
+        calculatedSplits50 = [
+          {
+            distance: 25,
+            intervalSplit: split25a,
+            cumulativeClock: split25a,
+            diffFromAvg: split25a - (finalTargetTime / 2),
+            tacticalNote: isSC ? "Block takeoff, 5-6 underwater dolphin kicks, clean breakout tempo" : "Explosive block takeoff, breakout tempo"
+          },
+          {
+            distance: 50,
+            intervalSplit: split25b,
+            cumulativeClock: finalTargetTime,
+            diffFromAvg: split25b - (finalTargetTime / 2),
+            tacticalNote: isSC ? "Tumble turn & tight streamline exit; no breath into wall touch" : "Hold stroke rate, lunge full reach into touch pad"
+          }
+        ];
+
+        graphSplits = [split25a, split25b];
+      }
+      else if (currentDistance === 100) {
+        // 100m Sprint: Front 50m vs Back 50m
+        let frontRatio = 0.485;
+        if (currentStrategy === 'negative') frontRatio = 0.505;
+        else if (currentStrategy === 'flat') frontRatio = 0.50;
+
+        const first50 = Math.round(finalTargetTime * frontRatio * 100) / 100;
+        const second50 = Math.round((finalTargetTime - first50) * 100) / 100;
+
+        calculatedSplits100 = [
+          {
+            distance: 100,
+            intervalSplit: finalTargetTime,
+            cumulativeClock: finalTargetTime,
+            diffFromAvg: 0,
+            tacticalNote: `Full 100m ${currentStroke} tempo: Easy speed front 50m, power drive to touch`
+          }
+        ];
+
+        calculatedSplits50 = [
+          {
+            distance: 50,
+            intervalSplit: first50,
+            cumulativeClock: first50,
+            diffFromAvg: first50 - (finalTargetTime / 2),
+            tacticalNote: "Dive takeoff & easy speed cadence; build rhythm without over-spinning"
+          },
+          {
+            distance: 100,
+            intervalSplit: second50,
+            cumulativeClock: finalTargetTime,
+            diffFromAvg: second50 - (finalTargetTime / 2),
+            tacticalNote: "Clean turn exit, elevate 6-beat kick tempo, power sprint to the wall touch"
+          }
+        ];
+
+        graphSplits = [first50, second50];
+      }
+      else {
+        // 200m, 400m, 800m, 1500m
+        const totalHundreds = currentDistance / 100;
+        const flatAvgPer100 = finalTargetTime / totalHundreds;
+        let splits = [];
+
+        if (currentStrategy === 'flat') {
+          for (let i = 0; i < totalHundreds; i++) splits.push(flatAvgPer100);
         }
-      } 
-      else if (currentStrategy === 'tactical') {
-        // Pacing curves adapted to race distance:
-        // 200m: 1st 100 dive speed (+1.2s), 2nd 100 back half holding
-        // 400m: 1st 100 dive speed (+1.5s), 4th 100 finish surge (+1.0s), mid cruise
-        // 800m/1500m: 1st 100 dive speed (+1.7s), last 100 finish surge (+1.2s), mid cruise
-        let diveBonus = 1.70;
-        let kickSurge = 1.20;
+        else if (currentStrategy === 'tactical') {
+          let diveBonus = 1.70;
+          let kickSurge = 1.20;
 
-        if (currentDistance === 200) {
-          diveBonus = 1.20;
-          kickSurge = 0.80;
-        } else if (currentDistance === 400) {
-          diveBonus = 1.50;
-          kickSurge = 1.00;
-        }
+          if (currentDistance === 200) {
+            diveBonus = 1.20;
+            kickSurge = 0.80;
+          } else if (currentDistance === 400) {
+            diveBonus = 1.50;
+            kickSurge = 1.00;
+          }
 
-        if (totalHundreds === 2) {
-          // 200m: exactly 2 100m splits
-          const lap1 = (finalTargetTime / 2) - (diveBonus / 2);
-          const lap2 = (finalTargetTime / 2) + (diveBonus / 2);
-          splits = [lap1, lap2];
-        } else {
-          const cruisePace = (finalTargetTime + diveBonus + kickSurge) / totalHundreds;
-
-          for (let i = 0; i < totalHundreds; i++) {
-            if (i === 0) {
-              splits.push(cruisePace - diveBonus);
-            } else if (i === totalHundreds - 1) {
-              splits.push(cruisePace - kickSurge);
-            } else {
-              let rhythmAdj = 0;
-              if (i === 1) rhythmAdj = -0.2;
-              else if (i === totalHundreds - 2) rhythmAdj = 0.15;
-              splits.push(cruisePace + rhythmAdj);
+          if (totalHundreds === 2) {
+            const lap1 = (finalTargetTime / 2) - (diveBonus / 2);
+            const lap2 = (finalTargetTime / 2) + (diveBonus / 2);
+            splits = [lap1, lap2];
+          } else {
+            const cruisePace = (finalTargetTime + diveBonus + kickSurge) / totalHundreds;
+            for (let i = 0; i < totalHundreds; i++) {
+              if (i === 0) splits.push(cruisePace - diveBonus);
+              else if (i === totalHundreds - 1) splits.push(cruisePace - kickSurge);
+              else {
+                let rhythmAdj = 0;
+                if (i === 1) rhythmAdj = -0.2;
+                else if (i === totalHundreds - 2) rhythmAdj = 0.15;
+                splits.push(cruisePace + rhythmAdj);
+              }
             }
           }
-        }
 
-        const currentSum = splits.reduce((a, b) => a + b, 0);
-        const diff = (finalTargetTime - currentSum) / totalHundreds;
-        splits = splits.map(s => s + diff);
-      } 
-      else if (currentStrategy === 'negative') {
-        const half = totalHundreds / 2;
-        const frontBias = currentDistance <= 400 ? 0.40 : 0.70;
-        const backBias = -frontBias;
-        
-        for (let i = 0; i < totalHundreds; i++) {
-          if (i === 0) {
-            splits.push(flatAvgPer100 + frontBias - (currentDistance <= 400 ? 0.8 : 1.2));
-          } else if (i < half) {
-            splits.push(flatAvgPer100 + frontBias);
-          } else if (i === totalHundreds - 1) {
-            splits.push(flatAvgPer100 + backBias - 0.6);
-          } else {
-            splits.push(flatAvgPer100 + backBias);
+          const currentSum = splits.reduce((a, b) => a + b, 0);
+          const diff = (finalTargetTime - currentSum) / totalHundreds;
+          splits = splits.map(s => s + diff);
+        }
+        else if (currentStrategy === 'negative') {
+          const half = totalHundreds / 2;
+          const frontBias = currentDistance <= 400 ? 0.40 : 0.70;
+          const backBias = -frontBias;
+
+          for (let i = 0; i < totalHundreds; i++) {
+            if (i === 0) splits.push(flatAvgPer100 + frontBias - (currentDistance <= 400 ? 0.8 : 1.2));
+            else if (i < half) splits.push(flatAvgPer100 + frontBias);
+            else if (i === totalHundreds - 1) splits.push(flatAvgPer100 + backBias - 0.6);
+            else splits.push(flatAvgPer100 + backBias);
           }
+
+          const currentSum = splits.reduce((a, b) => a + b, 0);
+          const diff = (finalTargetTime - currentSum) / totalHundreds;
+          splits = splits.map(s => s + diff);
         }
 
-        const currentSum = splits.reduce((a, b) => a + b, 0);
-        const diff = (finalTargetTime - currentSum) / totalHundreds;
-        splits = splits.map(s => s + diff);
+        // 100m dataset
+        let runningTime = 0;
+        calculatedSplits100 = splits.map((splitSec, idx) => {
+          runningTime += splitSec;
+          const dist = (idx + 1) * 100;
+          let note = "Aerobic cruise & turn rhythm";
+
+          if (currentStroke === 'Individual Medley') {
+            if (currentDistance === 200) {
+              if (idx === 0) note = "Front half (Fly & Back): Easy speed & clean crossover turn";
+              else note = "Back half (Breast & Free): Attack breaststroke leg, all-out freestyle sprint";
+            } else {
+              if (idx === 0) note = "100m Fly: Long rhythmic stroke, conserve shoulders for breast leg";
+              else if (idx === 1) note = "100m Back: High hip rotation, steady breathing and kick rhythm";
+              else if (idx === 2) note = "100m Breast: The decider! Deep pullouts & accelerate kick tempo";
+              else note = "100m Free: Empty the tank! Sprint kick to the wall touch";
+            }
+          } else if (currentStroke === 'Breaststroke') {
+            if (currentDistance === 200) {
+              if (idx === 0) note = "Front 100m: Long patient stroke length & deep pullouts; don't over-rate";
+              else note = "Back 100m: Attack the 3rd 50m, accelerate heel snap, fight slip into finish";
+            } else {
+              note = idx === 0 ? "Block takeoff & long pullout" : "High tempo recovery & strong two-hand touch";
+            }
+          } else if (currentStroke === 'Backstroke') {
+            if (currentDistance === 200) {
+              if (idx === 0) note = "Front 100m: Backstroke start & 12-15m dolphin kicks, steady rotation";
+              else note = "Back 100m: Elevate kick tempo on 3rd 50m, count flags to wall touch";
+            } else {
+              note = idx === 0 ? "Explosive backstroke start off wedges" : "Clean turn exit & fast stroke turnover home";
+            }
+          } else if (currentStroke === 'Butterfly') {
+            if (currentDistance === 200) {
+              if (idx === 0) note = "Front 100m: Smooth stroke tempo, rhythmic breathing, conserve shoulders";
+              else note = "Back 100m: Drive knees & hips on 3rd 50m to prevent heavy arms into finish";
+            } else {
+              note = idx === 0 ? "Explosive dive & underwater fly kicks" : "Second kick acceleration to the touch pad";
+            }
+          } else {
+            // Freestyle
+            if (currentDistance === 200) {
+              if (idx === 0) note = "Dive start & establish easy speed cadence";
+              else note = "The crucial 2nd 100m! Elevate kick and sprint home";
+            } else if (currentDistance === 400) {
+              if (idx === 0) note = "Block takeoff; establish clean race stroke rate";
+              else if (idx === 1) note = "Settle into CSS pace; long stroke glide";
+              else if (idx === 2) note = "Attack the 3rd 100m! Build 4-beat into 6-beat kick";
+              else note = "Final lap surge; empty the tank to wall touch";
+            } else {
+              if (idx === 0) note = "Dive start & establish clean stroke rate";
+              else if (idx === 1) note = "Settle into CSS pace; control breathing pattern";
+              else if (dist === currentDistance / 2) note = "Halfway marker; maintain high elbow catch";
+              else if (dist === currentDistance - 200) note = "Build kick 4-beat into 6-beat; pass fatigue";
+              else if (dist === currentDistance - 100) note = "Final lap surge; empty the tank to wall touch";
+            }
+          }
+
+          return {
+            distance: dist,
+            intervalSplit: splitSec,
+            cumulativeClock: runningTime,
+            diffFromAvg: splitSec - flatAvgPer100,
+            tacticalNote: note
+          };
+        });
+
+        // 50m dataset
+        let runningTime50 = 0;
+        calculatedSplits100.forEach((item, index) => {
+          const split100 = item.intervalSplit;
+          let first50 = split100 * 0.49;
+          let second50 = split100 * 0.51;
+
+          if (index === 0) {
+            first50 = split100 * 0.47;
+            second50 = split100 * 0.53;
+          }
+
+          runningTime50 += first50;
+          let note50a = index === 0 ? "Block takeoff & fly kicks" : "Open water cadence";
+          let note50b = index === (totalHundreds - 1) ? "Final touch surge / full stretch" : "Clean tumble turn & streamline";
+
+          if (currentStroke === 'Individual Medley' && currentDistance === 200) {
+            if (index === 0) { note50a = "50m Fly leg: Dive takeoff & easy speed cadence"; note50b = "50m Back leg: Clean crossover turn, rotate hips"; }
+            else { note50a = "50m Breast leg: Deep pullouts & accelerate kick tempo"; note50b = "50m Free leg: Empty the tank! All-out sprint to touch"; }
+          } else if (currentDistance === 200 && index === 1) {
+            note50a = "Work the crucial 3rd 50m! Elevate tempo";
+          }
+
+          calculatedSplits50.push({
+            distance: item.distance - 50,
+            intervalSplit: first50,
+            cumulativeClock: runningTime50,
+            diffFromAvg: first50 - (flatAvgPer100 / 2),
+            tacticalNote: note50a
+          });
+
+          runningTime50 += second50;
+          calculatedSplits50.push({
+            distance: item.distance,
+            intervalSplit: second50,
+            cumulativeClock: runningTime50,
+            diffFromAvg: second50 - (flatAvgPer100 / 2),
+            tacticalNote: note50b
+          });
+        });
+
+        graphSplits = splits;
       }
 
-      // Tactical Directives by Distance
-      let runningTime = 0;
-      calculatedSplits100 = splits.map((splitSec, idx) => {
-        runningTime += splitSec;
-        const dist = (idx + 1) * 100;
-        let note = "Aerobic cruise & turn rhythm";
+      // ==========================================
+      // SYNCHRONIZED METRICS & CHECKPOINTS RENDER
+      // ==========================================
 
-        if (currentDistance === 200) {
-          if (idx === 0) note = "Dive start & establish easy speed cadence";
-          else note = "The crucial 2nd 100m! Elevate kick and sprint home";
-        } else if (currentDistance === 400) {
-          if (idx === 0) note = "Block takeoff; establish clean race stroke rate";
-          else if (idx === 1) note = "Settle into CSS pace; long stroke glide";
-          else if (idx === 2) note = "Attack the 3rd 100m! Build 4-beat into 6-beat kick";
-          else note = "Final lap surge; empty the tank to wall touch";
-        } else {
-          // 800m & 1500m
-          if (idx === 0) note = "Dive start & establish clean stroke rate";
-          else if (idx === 1) note = "Settle into CSS pace; control breathing pattern";
-          else if (dist === currentDistance / 2) note = "Halfway marker; maintain high elbow catch";
-          else if (dist === currentDistance - 200) note = "Build kick 4-beat into 6-beat; pass fatigue";
-          else if (dist === currentDistance - 100) note = "Final lap surge; empty the tank to wall touch";
-        }
-        
-        return {
-          distance: dist,
-          intervalSplit: splitSec,
-          cumulativeClock: runningTime,
-          diffFromAvg: splitSec - flatAvgPer100,
-          tacticalNote: note
-        };
-      });
-
-      // 50m split breakdown
-      calculatedSplits50 = [];
-      let runningTime50 = 0;
-      calculatedSplits100.forEach((item, index) => {
-        const split100 = item.intervalSplit;
-        let first50 = split100 * 0.49;
-        let second50 = split100 * 0.51;
-
-        if (index === 0) {
-          first50 = split100 * 0.47;
-          second50 = split100 * 0.53;
-        }
-
-        runningTime50 += first50;
-        let note50a = index === 0 ? "Block takeoff & fly kicks" : "Open water cadence";
-        if (currentDistance === 200 && index === 1) note50a = "Work the crucial 3rd 50m! Elevate tempo";
-
-        calculatedSplits50.push({
-          distance: item.distance - 50,
-          intervalSplit: first50,
-          cumulativeClock: runningTime50,
-          diffFromAvg: first50 - (flatAvgPer100 / 2),
-          tacticalNote: note50a
-        });
-
-        runningTime50 += second50;
-        let note50b = index === (totalHundreds - 1) ? "Final touch surge / full stretch" : "Clean tumble turn & streamline";
-
-        calculatedSplits50.push({
-          distance: item.distance,
-          intervalSplit: second50,
-          cumulativeClock: runningTime50,
-          diffFromAvg: second50 - (flatAvgPer100 / 2),
-          tacticalNote: note50b
-        });
-      });
-
+      // 1. Total Target Time
       document.getElementById('stat-total-time').innerText = formatTime(finalTargetTime);
-      document.getElementById('stat-avg-100').innerText = formatTime(flatAvgPer100);
-      document.getElementById('stat-avg-50').innerText = formatSecondsOnly(flatAvgPer100 / 2);
-      
-      const halfwayIdx = Math.max(0, Math.floor(totalHundreds / 2) - 1);
-      const halfwayData = calculatedSplits100[halfwayIdx];
-      document.getElementById('stat-halfway-time').innerText = formatTime(halfwayData.cumulativeClock);
 
-      const statusBadge = document.getElementById('stat-status-badge');
-      if (activeInputTab === 'county') {
-        statusBadge.innerText = `County Standard (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
-      } else {
-        statusBadge.innerText = targetOffsetPct === 0 ? 'Custom Goal Pace' : `PB Target (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
+      // 2. Avg 100m Pace
+      document.getElementById('stat-avg-100').innerText = formatTime(pacePer100);
+
+      // 3. Avg 50m Split (Format with formatTime if >= 60s, or seconds if < 60s)
+      const statAvg50 = document.getElementById('stat-avg-50');
+      if (statAvg50) {
+        statAvg50.innerText = avg50Split >= 60 ? formatTime(avg50Split) : formatSecondsOnly(avg50Split);
       }
 
-      document.getElementById('table-summary-tag').innerText = `${currentDistance}m ${currentCourse === 'SC' ? 'Short Course (25m)' : 'Long Course (50m)'} &bull; ${formatTime(finalTargetTime)}`;
+      // 4. Halfway Checkpoint (Calculated dynamically for currentDistance every single time)
+      const halfwayLabel = document.getElementById('stat-halfway-label');
+      const halfwayTime = document.getElementById('stat-halfway-time');
+      const graphDistEnd = document.getElementById('graph-dist-end');
 
-      renderPaceGraph(splits, flatAvgPer100);
+      let cpDistance = currentDistance / 2;
+      if (currentDistance === 50) cpDistance = 25;
+      else if (currentDistance === 100) cpDistance = 50;
+      else if (currentDistance === 1500) cpDistance = 750;
+
+      if (halfwayLabel) halfwayLabel.innerText = `${cpDistance}m Checkpoint`;
+      if (graphDistEnd) graphDistEnd.innerText = `${currentDistance}m (Touch)`;
+
+      // Look up exact cumulative time at checkpoint distance
+      let cpClock = finalTargetTime / 2;
+      const matchSplit = calculatedSplits50.find(s => s.distance === cpDistance);
+      if (matchSplit) {
+        cpClock = matchSplit.cumulativeClock;
+      }
+      if (halfwayTime) halfwayTime.innerText = formatTime(cpClock);
+
+      // 5. Status Badge & Table Summary Tag
+      const statusBadge = document.getElementById('stat-status-badge');
+      if (statusBadge) {
+        if (activeInputTab === 'county') {
+          statusBadge.innerText = `County Cut (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
+        } else {
+          statusBadge.innerText = targetOffsetPct === 0 ? 'Custom Goal Pace' : `Target (${targetOffsetPct >= 0 ? '+' : ''}${targetOffsetPct}%)`;
+        }
+      }
+
+      const tableTag = document.getElementById('table-summary-tag');
+      if (tableTag) {
+        tableTag.innerText = `${currentDistance}m ${currentStroke} ${currentCourse === 'SC' ? '(25m SC)' : '(50m LC)'} • ${formatTime(finalTargetTime)}`;
+      }
+
+      // 6. Split button text adjustment (50m Total vs 25m Splits, or 100m Total vs 50m Splits)
+      const btnSplit100 = document.getElementById('btn-split-100');
+      const btnSplit50 = document.getElementById('btn-split-50');
+      if (currentDistance === 50) {
+        if (btnSplit100) btnSplit100.innerText = "50m Total";
+        if (btnSplit50) btnSplit50.innerText = "25m Splits";
+      } else if (currentDistance === 100) {
+        if (btnSplit100) btnSplit100.innerText = "100m Total";
+        if (btnSplit50) btnSplit50.innerText = "50m Splits";
+      } else {
+        if (btnSplit100) btnSplit100.innerText = "100m Splits";
+        if (btnSplit50) btnSplit50.innerText = "50m Splits";
+      }
+
+      renderPaceGraph(graphSplits, pacePer100);
       renderPacingTable();
     }
 
@@ -1322,7 +1754,7 @@
     // Share or Copy Feature (Uses Mobile OS Share Sheet if available)
     async function shareOrCopyPacing() {
       const dataset = splitInterval === 100 ? calculatedSplits100 : calculatedSplits50;
-      let text = `🏊 AquaPace Race Plan - ${currentDistance}m Free (${currentCourse})\n`;
+      let text = `🏊 AquaPace Race Plan - ${currentDistance}m ${currentStroke} (${currentCourse})\n`;
       text += `⏱ Target: ${formatTime(dataset[dataset.length - 1].cumulativeClock)} | Strategy: ${document.getElementById('select-strategy').selectedOptions[0].text}\n\n`;
       text += `Splits:\n`;
 
@@ -1334,7 +1766,7 @@
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `AquaPace ${currentDistance}m Free Plan`,
+            title: `AquaPace ${currentDistance}m ${currentStroke} Plan`,
             text: text
           });
           showToast("Race plan shared!");
@@ -1367,12 +1799,13 @@
 
     // Saved Swimmer Plans (LocalStorage)
     function promptSavePlan() {
-      const defaultName = `Swimmer ${currentDistance}m (${currentCourse})`;
+      const defaultName = `Swimmer ${currentDistance}m ${currentStroke} (${currentCourse})`;
       const name = prompt("Enter a name for this swimmer's pace plan:", defaultName);
       if (!name || !name.trim()) return;
 
       const plan = {
         name: name.trim(),
+        stroke: currentStroke,
         distance: currentDistance,
         course: currentCourse,
         strategy: currentStrategy,
@@ -1398,7 +1831,7 @@
       existing.forEach((p, index) => {
         const opt = document.createElement('option');
         opt.value = index;
-        opt.text = `${p.name} (${p.distance}m - ${formatTime(p.baseTargetSeconds)})`;
+        opt.text = `${p.name} (${p.distance}m ${p.stroke || 'Free'} - ${formatTime(p.baseTargetSeconds)})`;
         select.appendChild(opt);
       });
     }
@@ -1410,6 +1843,10 @@
       const plan = existing[index];
       if (!plan) return;
 
+      if (plan.stroke) {
+        currentStroke = plan.stroke;
+        document.getElementById('select-stroke').value = plan.stroke;
+      }
       setDistance(plan.distance);
       setCourse(plan.course);
       document.getElementById('select-strategy').value = plan.strategy;
@@ -1485,7 +1922,7 @@
           <button id="modal-tab-male" onclick="switchModalGender('male')" class="px-4 py-1.5 rounded-lg bg-sky-600 text-white transition">Open / Male</button>
           <button id="modal-tab-female" onclick="switchModalGender('female')" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition">Female</button>
         </div>
-        <span class="text-[11px] text-slate-400 hidden sm:inline">Tap any 200m, 400m, 800m or 1500m time to load into pacer</span>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">Tap ANY event time (Free, Back, Breast, Fly, IM) to load into pacer</span>
       </div>
 
       <!-- Modal Table -->
@@ -1516,6 +1953,116 @@
         <span>Times derived from official 2026 County Championship Consideration standards.</span>
         <button onclick="closeCountyModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition">Close</button>
       </div>
+    </div>
+  </div>
+
+
+  <!-- Comprehensive Mobile App Download Modal (Apple iOS & Android) -->
+  <div id="app-install-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 no-print">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Download AquaPace Pro</h3>
+            <p class="text-[11px] text-slate-400">Install onto iPhone, iPad, or Android phone</p>
+          </div>
+        </div>
+        <button onclick="closeInstallModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Platform Tabs (Apple vs Android) -->
+      <div class="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center gap-2">
+        <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold w-full">
+          <button id="install-tab-ios" onclick="switchInstallTab('ios')" class="flex-1 py-1.5 rounded-lg bg-sky-600 text-white transition flex items-center justify-center gap-1.5">
+            <span>🍎 Apple (iPhone / iPad)</span>
+          </button>
+          <button id="install-tab-android" onclick="switchInstallTab('android')" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+            <span>🤖 Android Phone</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs">
+
+        <!-- TAB 1: Apple iOS Instructions -->
+        <div id="install-content-ios" class="space-y-3.5 text-slate-300">
+          <div class="p-3 bg-sky-950/40 border border-sky-800/60 rounded-2xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 font-bold">1</div>
+            <div>
+              <p class="font-bold text-white text-xs">Open in Apple Safari</p>
+              <p class="text-[11px] text-slate-400">Make sure this link is open in Safari (not inside WhatsApp or Chrome).</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 font-bold">2</div>
+            <div>
+              <p class="font-bold text-white text-xs">Tap the Share Button</p>
+              <p class="text-[11px] text-slate-400">Tap the square with an arrow pointing up (<svg class="w-3.5 h-3.5 inline text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>) at the bottom of Safari.</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded-2xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 font-bold">3</div>
+            <div>
+              <p class="font-bold text-white text-xs">Tap "Add to Home Screen"</p>
+              <p class="text-[11px] text-slate-400">Scroll down the menu and tap <strong>"Add to Home Screen"</strong> (➕), then tap <strong>Add</strong>.</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-emerald-950/30 border border-emerald-800/40 rounded-2xl flex items-start gap-2.5 text-emerald-300 text-[11px]">
+            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <div>
+              <strong>Instant Standalone App:</strong> Apple creates an app icon on your home screen. It opens borderless in full screen and works 100% offline poolside!
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Android Instructions & Direct 1-Click Install -->
+        <div id="install-content-android" class="hidden space-y-3.5 text-slate-300">
+          <div class="p-4 bg-gradient-to-br from-slate-950 to-sky-950/40 border border-sky-800/60 rounded-2xl text-center space-y-2">
+            <p class="font-bold text-white text-sm">1-Tap Android Installation</p>
+            <p class="text-[11px] text-slate-400">Install directly to your Android app drawer and home screen.</p>
+            <button onclick="triggerAndroidDirectInstall()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-600/30 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Install to Android Phone Now</span>
+            </button>
+          </div>
+
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded-2xl space-y-1">
+            <p class="font-bold text-white text-xs">Manual Chrome Method:</p>
+            <p class="text-[11px] text-slate-400">Tap the three vertical dots (<strong>⋮</strong>) in the top-right corner of Chrome $ightarrow$ select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</p>
+          </div>
+
+          <div class="p-3 bg-slate-950 border border-slate-800 rounded-2xl space-y-1">
+            <p class="font-bold text-white text-xs">Standalone APK File:</p>
+            <p class="text-[11px] text-slate-400">A native Android project is included in the code. You can download the compiled <strong>`.apk`</strong> directly from the GitHub Actions release tab.</p>
+          </div>
+
+          <div class="p-3 bg-emerald-950/30 border border-emerald-800/40 rounded-2xl flex items-start gap-2.5 text-emerald-300 text-[11px]">
+            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <div>
+              <strong>100% Offline Natatorium Mode:</strong> Service Worker caches all code and 2026 times so it opens instantly at poolside without Wi-Fi or cellular signal.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs">
+        <span class="text-slate-500 text-[11px]">AquaPace Pro &bull; PWA & Standalone</span>
+        <button onclick="closeInstallModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs transition">Close</button>
+      </div>
+
     </div>
   </div>
 
